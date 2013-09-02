@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+
+<html ng-app='calendarApp'>
+  <head>
+    <title>リソース予約システム</title>
+    <meta charset='UTF-8'>
+    <%= stylesheet_link_tag 'fullcalendar.css', :plugin => 'schedular' %>
+    <%= stylesheet_link_tag 'original-fullcalendar.css', :plugin => 'schedular' %>
+    <%= stylesheet_link_tag 'bootstrap.min.css', :plugin => 'schedular' %>
+
+    <%= javascript_include_tag 'jquery/jquery-2.0.3.min.js', :plugin => 'schedular' %>
+    <%= javascript_include_tag 'jquery-ui/v1.10.3/ui/jquery-ui.js', :plugin => 'schedular' %>
+    <%= javascript_include_tag 'angular/v1.0.7/angular.min.js', :plugin => 'schedular' %>
+    <%= javascript_include_tag 'jquery-ui/v1.10.3/fullcalendar.min.js', :plugin => 'schedular' %>
+    <%= javascript_include_tag 'bootstrap-gh-pages/ui-bootstrap-0.5.0.min.js', :plugin => 'schedular' %>
+    <%= javascript_include_tag 'bootstrap-gh-pages/ui-bootstrap-tpls-0.5.0.min.js', :plugin => 'schedular' %>
+    <%= javascript_include_tag 'angular-ui/calendar.js', :plugin => 'schedular' %>
+    <%= javascript_include_tag 'pochi_calendar_training.js', :plugin => 'schedular' %>
+  </head>
+
+  <body ng-controller='CalendarCtrl'>
+    <div modal="shouldBeOpen" close="close()" options="opts">
+        <div class="modal-header">
+            <h3>I'm a modal!</h3>
+        </div>
+        <div class="modal-body">
+            <ul>
+                <li ng-repeat="item in items">{{item}}</li>
+            </ul>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-warning cancel" ng-click="close()">Cancel</button>
+        </div>
+    </div>
+  </body>
+</html>

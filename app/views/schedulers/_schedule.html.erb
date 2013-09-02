@@ -1,0 +1,12 @@
+<tr class="version open <%= cycle('odd','even') %>" id="<%= schedule.id %>">
+  <td><%= schedule.title %></td>
+  <td><%= schedule.license %></td>
+  <td class="buttons">
+    <%= link_to "編集", project_scheduler_path(schedule.project, schedule),
+                       :class => "icon icon-edit schedule_edit" %>
+    <%= link_to "削除", project_scheduler_path(schedule.project, schedule),
+                       :remote => true, :method => :delete,
+                       :class => "icon icon-del schedule",
+                       :confirm => "よろしいですか？" %>
+  </td>
+</tr>

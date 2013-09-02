@@ -1,0 +1,61 @@
+  <table class="list versions" style="margin-top: 20px">
+    <thead>
+      <tr>
+        <th>リソース名</th>
+        <th>ライセンス数</th>
+        <th style="width: 15%"></th>
+      </tr>
+    </thead>
+    <tbody id="schedulers">
+      <%= render :partial => "schedulers/schedule", :collection => project.schedules, :as => :schedule, :local => {:project => project} %>
+    </tbody>
+  </table>
+
+  <script type="text/javascript">
+    $("a.schedule_edit").live("click", function(event) {
+      var _input_elements = $(this).parents("tr").find("td").not(".buttons");
+      _input_elements.each(function() {
+        var val = $(this).html();
+        //$(this).html("<td><input type='text' size=30></td>");
+        $(this).html("<input type='text' size=30>");
+        $(this).find("input").val(val);
+      });
+
+      $(this).removeClass("schedule_edit").
+              addClass("schedule_save").
+              html("保存");
+      return false;
+    });
+
+    $("a.schedule_save").live("click", function(event) {
+      var _resource_name = $($(this).parents("tr").find("input")[0]).val();
+      var _license_number = $($(this).parents("tr").find("input")[1]).val();
+
+      var put_data = "title=" + _resource_name + "&license=" + _license_number;
+      var url = $(this).attr("href");
+      var _self = this;
+
+      $.ajax({
+        type: 'PUT',
+        url: url,
+        data: put_data,
+        dataType: 'json',
+        success: function(d) {
+          console.log("saved");
+          var _input_elements = $(_self).parents("tr").find("td").not(".buttons");
+          _input_elements.each(function() {
+            var val = $(this).find("input").val();
+            $(this).html(val);
+          });
+          $(_self).removeClass("schedule_save").
+                   addClass("schedule_edit").
+                   html("編集");
+        },
+        error: function(xhr, status, error) {
+          console.log(status);
+          return false;
+        }
+      });
+      return false;
+    });
+  </script>

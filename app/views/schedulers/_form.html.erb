@@ -1,0 +1,11 @@
+<% @schedule = Schedule.new(project_id: project.id) %>
+<%= labelled_form_for :schedule, @schedule,
+                      :url => {:controller => 'schedulers',
+                               :action => 'create',
+                               :project_id => project.id },
+                     :remote => true do |form| %>
+  <%= form.text_field :title %>
+  <%= form.text_field :license, title: 'ライセンス数' %>
+  <%= form.hidden_field :project_id, value: project.id %>
+  <%= form.submit '作成' %>
+<% end %>

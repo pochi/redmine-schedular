@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+
+<html ng-app='calendarApp'>
+  <head>
+    <title>リソース予約システム</title>
+    <meta charset='UTF-8'>
+    <%= javascript_include_tag 'jquery/jquery-2.0.3.min.js', :plugin => 'schedular' %>
+    <%= javascript_include_tag 'jquery-ui/v1.10.3/ui/jquery-ui.js', :plugin => 'schedular' %>
+    <%= javascript_include_tag 'angular/v1.0.7/angular.min.js', :plugin => 'schedular' %>
+    <%= javascript_include_tag 'angular/v1.0.7/angular-resource.min.js', :plugin => 'schedular' %>
+    <%= javascript_include_tag 'jquery-ui/v1.10.3/fullcalendar.min.js', :plugin => 'schedular' %>
+    <%= javascript_include_tag 'bootstrap-gh-pages/ui-bootstrap-0.5.0.min.js', :plugin => 'schedular' %>
+    <%= javascript_include_tag 'bootstrap-gh-pages/ui-bootstrap-tpls-0.5.0.min.js', :plugin => 'schedular' %>
+    <%= javascript_include_tag 'angular-ui/calendar.js', :plugin => 'schedular' %>
+    <%= javascript_include_tag 'pochi_calendar.js', :plugin => 'schedular' %>
+
+    <%= stylesheet_link_tag 'fullcalendar.css', :plugin => 'schedular' %>
+    <%= stylesheet_link_tag 'original-fullcalendar.css', :plugin => 'schedular' %>
+    <%= stylesheet_link_tag 'bootstrap-combined.min.css', :plugin => 'schedular' %>
+  </head>
+
+
+  <body ng-controller='CalendarCtrl'>
+    <div class="alert-success calAlert" ng-show="alertMessage = ''">
+      <h4>{{alertMessage}}</h4>
+    </div>
+    <div ui-calendar='uiConfig.calendar' ng-model='eventSources' config='uiConfig.calendar' calendar='myCalendar'></div>
+
+    <div modal="newReservation" close="dialogClose()" options="opts">
+        <div class="modal-header">
+            <h3>新規予約</h3>
+
+        </div>
+        <div class="modal-body">
+          <div class="alert-error calAlert">
+            <h4>{{alertEventMessage}}</h4>
+          </div>
+            <!-- [TODO] Form以下のレイアウトを正しく直す -->
+          <form name="newEvent" novalidate>
+            <select id="event_start_date_1i"
+                    name="event[start_date(1i)]"
+                    ng-model="newEvent.startYear"
+                    ng-options="year for year in option_years"
+                    ng-init="newEvent.startYear = startYear">
+            </select>
+            <select id="event_start_date_2i"
+                    name="event[start_date(2i)]"
+                    ng-model="newEvent.startMonth"
+                    ng-options="month for month in option_months"
+                    ng-init="newEvent.startMonth = startMonth">
+            </select>
+            <select id="event_start_date_3i"
+                    name="event[start_date(3i)]"
+                    ng-model="newEvent.startDate"
+                    ng-options="day for day in option_days"
+                    ng-init="newEvent.startDate = startDate">
+            </select>
+            -
+            <select id="event_end_date_1i"
+                    name="event[end_date(1i)]"
+                    ng-model="newEvent.endYear"
+                    ng-options="year for year in option_years"
+                    ng-init="newEvent.endYear = endYear">
+            </select>
+            <select id="event_end_date_2i"
+                    name="event[end_date(2i)]"
+                    ng-model="newEvent.endMonth"
+                    ng-options="month for month in option_months"
+                    ng-init="newEvent.endMonth = endMonth">
+            </select>
+            <select id="event_end_date_3i"
+                    name="event[end_date(3i)]"
+                    ng-model="newEvent.endDate"
+                    ng-options="day for day in option_days"
+                    ng-init="newEvent.endDate = endDate">
+            </select>
+
+            <br>
+            内容<br>
+            <input id="event_content"
+                   name="event[content]"
+                   ng-model="newEvent.content"
+                   size="30"
+                   type="text"
+                   required>
+            <br>
+            <span class="error" ng-show="!newEvent.content">Required!</span>
+            <br>
+            ライセンス<br>
+            <!-- selectオプションに出てくるundefinedはAngularのバグ -->
+            <select class="license" ng-model="newEvent.license" name="event[license]" required>
+              <%= @schedules.each_with_index do |schedule, index|%>
+                <option value="<%= schedule.id %>"><%= schedule.title%></option>
+              <% end %>
+            </select>
+            <br>
+            <span class="error" ng-show="!newEvent.license">Required!</span>
+
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button class="btn" ng-click="dialogClose()">キャンセル</button>
+          <button class="btn" ng-click="createEvent(newEvent)">作成</button>
+        </div>
+    </div>
+  </body>
+</html>
