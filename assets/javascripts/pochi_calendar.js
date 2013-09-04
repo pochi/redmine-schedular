@@ -153,8 +153,8 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
       height: 450,
       editable: true,
       header: {
-        left: 'today prev, next',
-        center :'title',
+        left: 'today prev, next, title',
+        center :'',
         right: ''
       },
       dayClick: $scope.alertEventOnClick,
