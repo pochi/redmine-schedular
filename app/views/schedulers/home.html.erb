@@ -21,15 +21,15 @@
 
 
   <body ng-controller='CalendarCtrl'>
-    <div class='row'>
+    <div class='row-fluid'>
       <div class='span2'>
         <h4 class='header' style='height: 42px; padding: 5px; margin-left: 10px; color: gray;'>
           リソース予約
-        </h3>
-        <a class="btn btn-danger btn-mini btn-large" style="width: 79px; height: 29px; margin-left: 15px; margin-top: -35px;" ng-click='dialogOpen()'>
+        </h4>
+        <a class="btn btn-danger btn-mini btn-large" style="width: 79px; height: 29px; margin-left: 15px; margin-top: -10px;" ng-click='dialogOpen()'>
           <div class='button-text' style='margin-top: 5px; font-size: 14px;'>作成</div>
         </a>
-        <h5 style='margin-left: 15px; border-bottom: 1px solid silver'>ライセンスリスト</h5>
+        <h5 style='margin-left: 15px; border-bottom: 1px solid silver; color: gray;'>ライセンスリスト</h5>
         <ul>
           <div ng-repeat='license in licenses' style='cursor: pointer; padding-bottom: 7px;' id='licence_{{ license.id }}'>
             <div style='width: 16px; height:16px; background-color: {{ license.color }}'>

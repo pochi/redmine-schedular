@@ -588,3 +588,7 @@ table.fc-border-separate {
 .pochi-event {
   backgroundColor: 'E84D3F'
 }
+
+.fc-custom-header {
+  margin-bottom: 10px;
+}
