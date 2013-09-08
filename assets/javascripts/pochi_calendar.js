@@ -52,13 +52,16 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
   $scope.project_id = _split_url[_split_url.length - 3];
   Events.get({project_id: $scope.project_id}, function(schedules, header) {
     angular.forEach(schedules, function(events_per_license, key) {
-      $scope.licenses[events_per_license['id']] = events_per_license['color'];
+      console.log(events_per_license);
+      $scope.licenses[events_per_license.id] = { id: events_per_license.id,
+                                                 color: events_per_license.color,
+                                                 title: events_per_license.name };
       angular.forEach(events_per_license['events'], function(e) {
-        initial_events.push({title: e.event.content,
+        initial_events.push({title: $scope.licenses[events_per_license.id].title,
                                   start: e.event.start_date,
                                   end: e.event.end_date,
                                   className: 'pochi-event',
-                                  backgroundColor: $scope.licenses[events_per_license['id']],
+                                  backgroundColor: $scope.licenses[events_per_license.id].color,
                                   borderColor: 'white'
                             });
       });
