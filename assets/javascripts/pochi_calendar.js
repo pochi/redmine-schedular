@@ -230,7 +230,7 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
         start: e.event.start_date,
         end: e.event.end_date,
         allDay: true,
-        backgroundColor: $scope.licenses[e.event.schedule_id],
+        backgroundColor: $scope.licenses[e.event.schedule_id].color,
         borderColor: 'white'
        }, true);
       $scope.newReservation = false;
