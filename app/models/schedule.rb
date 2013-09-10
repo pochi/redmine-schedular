@@ -15,12 +15,13 @@ class Schedule < ActiveRecord::Base
     'rgb(123, 209, 72)'
   ].freeze
 
-  def to_hash_with_events
+  def to_hash_with_events(date)
     { id: id,
       name: title,
       license: license,
       color: color,
-      events: self.events }
+      events: self.events.where("start_date > ?", date - 1.week)
+                         .where("end_date < ?", date + 1.month + 1.week) }
   end
 
   private

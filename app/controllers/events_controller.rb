@@ -25,7 +25,20 @@ class EventsController < ApplicationController
     end
   end
 
-  def edit
+  def update
+    event = Event.find(params[:id])
+    if event.update_attributes(:start_date  => params[:start_date],
+                               :end_date    => params[:end_date],
+                               :schedule_id => params[:schedule_id],
+                               :content     => params[:content])
+      respond_to do |format|
+        format.json { render :json => event }
+      end
+    else
+      respond_to do |format|
+        format.json { render :json => event.errors, :status => :unprocessable_entity }
+      end
+    end
   end
 
   def show

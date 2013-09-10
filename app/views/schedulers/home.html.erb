@@ -46,7 +46,7 @@
 
         <div modal="newReservation" close="dialogClose()" options="opts">
           <div class="modal-header">
-            <h3>新規予約</h3>
+            <h3>{{ modalOpts.title }}</h3>
 
           </div>
           <div class="modal-body">
@@ -54,7 +54,7 @@
               <h4>{{alertEventMessage}}</h4>
             </div>
             <!-- [TODO] Form以下のレイアウトを正しく直す -->
-            <form name="newEvent" novalidate>
+            <form name="newEvent" novalidate ng-init="newEvent.eventId = eventId">
               <select id="event_start_date_1i"
                       name="event[start_date(1i)]"
                       ng-model="newEvent.startYear"
@@ -98,15 +98,20 @@
               <input id="event_content"
                      name="event[content]"
                      ng-model="newEvent.content"
+                     ng-init="newEvent.content = title"
                      size="30"
                      type="text"
                      required>
               <br>
-              <span class="error" ng-show="!newEvent.content">Required!</span>
+              <span class="error" ng-show="!newEvent.content">内容は必須項目です</span>
               <br>
             ライセンス<br>
               <!-- selectオプションに出てくるundefinedはAngularのバグ -->
-              <select class="license" ng-model="newEvent.license" name="event[license]" required>
+              <select class="license"
+                      ng-model="newEvent.license"
+                      ng-init="newEvent.license = license"
+                      name="event[license]"
+                      required>
                 <%= @schedules.each_with_index do |schedule, index|%>
                 <option value="<%= schedule.id %>"><%= schedule.title%></option>
                 <% end %>
@@ -118,7 +123,7 @@
           </div>
           <div class="modal-footer">
             <button class="btn" ng-click="dialogClose()">キャンセル</button>
-            <button class="btn" ng-click="createEvent(newEvent)">作成</button>
+            <button class="btn" ng-click="createEvent(newEvent)">{{ modalOpts.submitText }}</button>
           </div>
         </div>
       </div>

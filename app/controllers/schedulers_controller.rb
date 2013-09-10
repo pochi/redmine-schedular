@@ -10,7 +10,7 @@ class SchedulersController < ApplicationController
     # [TODO] RedmineのProjectオブジェクトにgroup_by_schedule_idを作る
     events = { }.tap do |license_and_events|
                current_schedules.each do |schedule|
-                 license_and_events[schedule.id] = schedule.to_hash_with_events
+                 license_and_events[schedule.id] = schedule.to_hash_with_events(current_date)
                end
             end
 
@@ -66,4 +66,11 @@ class SchedulersController < ApplicationController
     @schedules = current_project.schedules
   end
 
+  def current_date
+    if params[:year] and params[:month]
+      Date.new(params[:year], params[:month])
+    else
+      Date.new(Time.now.year, Time.now.month)
+    end
+  end
 end

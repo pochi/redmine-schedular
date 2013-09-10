@@ -11,11 +11,15 @@ calendarApp.run(function($rootScope, $location) {
 
 var eventService = angular.module('eventService', ['ngResource']);
 eventService.factory('Event', function($resource) {
-  return $resource('/projects/:project_id/schedulers/:schedule_id/events', {
+  return $resource('/projects/:project_id/schedulers/:schedule_id/events/:event_id', {
     project_id: '@project_id',
     schedule_id: '@schedule_id',
+    event_id: '@event_id',
     format: 'json'
   }, {
+    update: {
+      method: 'PUT'
+    }
   });
 });
 
@@ -47,6 +51,8 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
   $scope.licenses = {
   };
   $scope.events = [];
+  $scope.newReservation = false;
+  $scope.updateEvent = false;
 
   // [TODO] Angularの$location.path()が空文字でかえってくる
   // 現在のURLからプロジェクトIDをとってくる
@@ -131,7 +137,8 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
   };
 
   $scope.selectEvent = function(start, end, allDay) {
-    var title;
+    $scope.initializeDialog();
+
     $scope.startYear = start.getFullYear();
     $scope.startMonth = start.getMonth() + 1;
     $scope.startDate = start.getDate();
@@ -141,19 +148,35 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
     $scope.endDate = end.getDate();
 
     $scope.newReservation = true;
-    if (title) {
-      $scope.myCalendar.fullCalendar("renderEvent", {
-        title: title,
-        start: start,
-        end: end,
-        allDay: true,
-        backgroundColor: "rgb(179, 220, 108)"
-       }, true);
-    }
     $scope.myCalendar.fullCalendar("unselect");
-
     $scope.$apply(function() {
       console.log(start);
+    });
+  };
+
+  $scope.editEvent = function(event) {
+    $scope.$apply(function(){
+      $scope.modalOpts.title = '更新';
+      $scope.modalOpts.submitText = '更新';
+
+      if(event.end === null)
+        event.end = event.start;
+
+      var eventIdArray = event._id.split('-');
+      $scope.eventId = eventIdArray[eventIdArray.length-1];
+      $scope.startYear = event.start.getFullYear();
+      $scope.startMonth = event.start.getMonth() + 1;
+      $scope.startDate = event.start.getDate();
+
+      $scope.endYear = event.end.getFullYear();
+      $scope.endMonth = event.end.getMonth() + 1;
+      $scope.endDate = event.end.getDate();
+
+      $scope.title = event.title;
+      var customEventArray = event.className[0].split('-');
+      $scope.license = customEventArray[customEventArray.length-1];
+      console.log($scope.license);
+      $scope.newReservation = true;
     });
   };
 
@@ -168,9 +191,10 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
         right: ''
       },
       dayClick: $scope.alertEventOnClick,
+      select: $scope.selectEvent,
       eventDrop: $scope.alertOnDrop,
       eventResize: $scope.alertOnResize,
-      select: $scope.selectEvent,
+      eventClick: $scope.editEvent,
       weekends: false,
       firstDay: 1,
       selectable: true,
@@ -212,7 +236,22 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
   };
 
   $scope.dialogOpen = function() {
+    $scope.initializeDialog();
     $scope.newReservation = true;
+  };
+
+  $scope.initializeDialog = function() {
+    $scope.modalOpts.title = '新規予約';
+    $scope.modalOpts.submitText = '作成';
+    $scope.title = null;
+    $scope.license = null;
+    $scope.eventId = null;
+    $scope.startYear = null;
+    $scope.startMonth = null;
+    $scope.startDate = null;
+    $scope.endYear = null;
+    $scope.endMonth = null;
+    $scope.endDate = null;
   };
 
   $scope.switchLicense = function() {
@@ -252,22 +291,42 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
     resource.end_date = newEvent.endYear + "-" + newEvent.endMonth + "-" + newEvent.endDate;
     resource.content = newEvent.content;
 
-    resource.$save(function(e, _) {
-      var event = {title: e.event.content,
-                   _id: 'event-' + e.event.id,
-                   start: e.event.start_date,
-                   end: e.event.end_date,
-                   backgroundColor: $scope.licenses[e.event.schedule_id].color,
-                   borderColor: 'white'
-                  };
-
-      $scope.myCalendar.fullCalendar("renderEvent", event,  true);
-      $scope.licenses[e.event.schedule_id].events.push(event);
-      $scope.newReservation = false;
-    }, function error(response) {
-      $scope.alertEventMessage = 'ライセンス数の上限を超えています';
-      console.log(response);
-    });
+    if (!newEvent.eventId) {
+      resource.$save(function(e, _) {
+        var event = {title: e.event.content,
+                     _id: 'event-' + e.event.id,
+                     start: e.event.start_date,
+                     end: e.event.end_date,
+                     backgroundColor: $scope.licenses[e.event.schedule_id].color,
+                     className: 'custom-license-event-' + e.event.schedule_id,
+                     borderColor: 'white'
+                    };
+        $scope.myCalendar.fullCalendar("renderEvent", event,  true);
+        $scope.licenses[e.event.schedule_id].events.push(event);
+        $scope.newReservation = false;
+      }, function error(response) {
+        $scope.alertEventMessage = 'ライセンス数の上限を超えています';
+        console.log(response);
+      });
+    } else {
+      resource.event_id = newEvent.eventId;
+      resource.$update(function(e,_) {
+        var event = {title: e.event.content,
+                     _id: 'event-' + e.event.id,
+                     start: e.event.start_date,
+                     end: e.event.end_date,
+                     backgroundColor: $scope.licenses[e.event.schedule_id].color,
+                     className: 'custom-license-event-' + e.event.schedule_id,
+                     borderColor: 'white'
+                    };
+        $scope.myCalendar.fullCalendar("removeEvents", event._id);
+        $scope.myCalendar.fullCalendar("renderEvent", event,  true);
+        $scope.licenses[e.event.schedule_id].events.push(event);
+        $scope.newReservation = false;
+      }, function error(response) {
+        console.log(response);
+      });
+    }
   };
 });
 
