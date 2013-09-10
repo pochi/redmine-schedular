@@ -592,3 +592,8 @@ table.fc-border-separate {
 .fc-custom-header {
   margin-bottom: 10px;
 }
+
+.hidden-decorator {
+  text-decoration: line-through;
+  color: gray;
+}

@@ -31,7 +31,7 @@
         </a>
         <h5 style='margin-left: 15px; border-bottom: 1px solid silver; color: gray;'>ライセンスリスト</h5>
         <ul>
-          <div ng-repeat='license in licenses' style='cursor: pointer; padding-bottom: 7px;' id='licence_{{ license.id }}' ng-click='switchLicense()'>
+          <div ng-repeat='license in licenses' style='cursor: pointer; padding-bottom: 7px;' id='licence_{{ license.id }}' ng-click='switchLicense()' class='ng-class:license.visiable'>
             <div style='width: 16px; height:16px; background-color: {{ license.color }}'>
                  <span class='license_title' style='margin-left: 20px; '>{{ license.title }}</span>
             </div>

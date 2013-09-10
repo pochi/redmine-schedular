@@ -48,17 +48,17 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
   $scope.licenses = {
   };
 
-    // [TODO] Angularの$location.path()が空文字でかえってくる
+  // [TODO] Angularの$location.path()が空文字でかえってくる
   // 現在のURLからプロジェクトIDをとってくる
   $scope.project_id = _split_url[_split_url.length - 3];
   Events.get({project_id: $scope.project_id}, function(schedules, header) {
     angular.forEach(schedules, function(events_per_license, key) {
-      console.log(events_per_license);
       $scope.licenses[events_per_license.id] = { id: events_per_license.id,
                                                  color: events_per_license.color,
                                                  title: events_per_license.name,
                                                  events: [],
-                                                 visiable: true };
+                                                 visiable: 'active' };
+
       angular.forEach(events_per_license['events'], function(e) {
         var event = {title: $scope.licenses[events_per_license.id].title,
                      _id: 'license-' + events_per_license.id,
@@ -218,9 +218,13 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
   };
 
   $scope.switchLicense = function() {
-    this.license.visiable = false;
-    console.log(this);
-    $scope.myCalendar.fullCalendar('removeEvents', 'license-' + this.license.id);
+    if (this.license.visiable === 'active') {
+      $scope.myCalendar.fullCalendar('removeEvents', 'license-' + this.license.id);
+      this.license.visiable = 'hidden-decorator';
+    } else {
+      $scope.myCalendar.fullCalendar('addEventSource', this.license.events);
+      this.license.visiable = 'active';
+    }
   };
 
   $scope.dialogClose = function() {
