@@ -11,9 +11,9 @@ calendarApp.run(function($rootScope, $location) {
 
 var eventService = angular.module('eventService', ['ngResource']);
 eventService.factory('Event', function($resource) {
-  return $resource('/projects/:project_id/schedulers/:scheduler_id/events', {
+  return $resource('/projects/:project_id/schedulers/:schedule_id/events', {
     project_id: '@project_id',
-    scheduler_id: '@scheduler_id',
+    schedule_id: '@schedule_id',
     format: 'json'
   }, {
   });
@@ -44,15 +44,15 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
   var y = date.getFullYear();
   var _split_url = location.href.split("/");
   var current_date = new Date(y,m,1);
-  var initial_events = [];
   $scope.licenses = {
   };
+  $scope.events = [];
 
   // [TODO] Angularの$location.path()が空文字でかえってくる
   // 現在のURLからプロジェクトIDをとってくる
   $scope.project_id = _split_url[_split_url.length - 3];
   Events.get({project_id: $scope.project_id}, function(schedules, header) {
-    angular.forEach(schedules, function(events_per_license, key) {
+      angular.forEach(schedules, function(events_per_license, key) {
       $scope.licenses[events_per_license.id] = { id: events_per_license.id,
                                                  color: events_per_license.color,
                                                  title: events_per_license.name,
@@ -60,19 +60,19 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
                                                  visiable: 'active' };
 
       angular.forEach(events_per_license['events'], function(e) {
-        var event = {title: $scope.licenses[events_per_license.id].title,
-                     _id: 'license-' + events_per_license.id,
-                     id: e.event.id,
+        var event = {title: e.event.content,
+                     _id: 'event-' + e.event.id,
                      start: e.event.start_date,
                      end: e.event.end_date,
                      className: 'custom-license-event-' + events_per_license.id,
                      backgroundColor: $scope.licenses[events_per_license.id].color,
                      borderColor: 'white'
                     };
-        initial_events.push(event);
+        $scope.events.push(event);
         $scope.licenses[events_per_license.id].events.push(event);
       });
     });
+    console.log($scope.events);
   });
 
   $scope.option_years = [];
@@ -90,7 +90,7 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
     $scope.option_days.push(i);
   }
 
-  $scope.events = initial_events;
+
   $scope.eventSource = {
     className: "pochi-event"
   };
@@ -204,14 +204,12 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
   };
 
   $scope.modalOpts = modalOpts;
-  $scope.eventSources = [$scope.events];
+  $scope.eventSources = [$scope.events, $scope.eventSource, $scope.eventsF];
 
   $scope.activate_calendar = function(name) {
     alert("pochi");
     console.log($scope.sourceCalendar);
   };
-
-  $scope.items = ["item2"];
 
   $scope.dialogOpen = function() {
     $scope.newReservation = true;
@@ -219,7 +217,20 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
 
   $scope.switchLicense = function() {
     if (this.license.visiable === 'active') {
-      $scope.myCalendar.fullCalendar('removeEvents', 'license-' + this.license.id);
+      var removeIds = [];
+      var events = $scope.licenses[this.license.id].events;
+      for(var i=0;i<events.length;i++) {
+        console.log(events[i]);
+        removeIds.push(events[i]._id);
+      }
+      var filter = function(e) {
+        for(var i=0; i<removeIds.length; i++) {
+          if(removeIds[i] ===  e._id)
+            return true;
+        }
+        return false;
+      };
+      $scope.myCalendar.fullCalendar('removeEvents', filter);
       this.license.visiable = 'hidden-decorator';
     } else {
       $scope.myCalendar.fullCalendar('addEventSource', this.license.events);
@@ -236,20 +247,22 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
   $scope.createEvent = function(newEvent) {
     var resource = new Event();
     resource.project_id = $scope.project_id;
-    resource.scheduler_id = newEvent.license;
+    resource.schedule_id = newEvent.license;
     resource.start_date = newEvent.startYear + "-" + newEvent.startMonth + "-" + newEvent.startDate;
     resource.end_date = newEvent.endYear + "-" + newEvent.endMonth + "-" + newEvent.endDate;
     resource.content = newEvent.content;
 
     resource.$save(function(e, _) {
-      $scope.myCalendar.fullCalendar("renderEvent", {
-        title: e.event.content,
-        start: e.event.start_date,
-        end: e.event.end_date,
-        allDay: true,
-        backgroundColor: $scope.licenses[e.event.schedule_id].color,
-        borderColor: 'white'
-       }, true);
+      var event = {title: e.event.content,
+                   _id: 'event-' + e.event.id,
+                   start: e.event.start_date,
+                   end: e.event.end_date,
+                   backgroundColor: $scope.licenses[e.event.schedule_id].color,
+                   borderColor: 'white'
+                  };
+
+      $scope.myCalendar.fullCalendar("renderEvent", event,  true);
+      $scope.licenses[e.event.schedule_id].events.push(event);
       $scope.newReservation = false;
     }, function error(response) {
       $scope.alertEventMessage = 'ライセンス数の上限を超えています';
