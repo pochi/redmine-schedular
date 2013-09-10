@@ -1,3 +1,4 @@
+
 // Angularの設計課題
 
 'use strict';
@@ -55,15 +56,21 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
       console.log(events_per_license);
       $scope.licenses[events_per_license.id] = { id: events_per_license.id,
                                                  color: events_per_license.color,
-                                                 title: events_per_license.name };
+                                                 title: events_per_license.name,
+                                                 events: [],
+                                                 visiable: true };
       angular.forEach(events_per_license['events'], function(e) {
-        initial_events.push({title: $scope.licenses[events_per_license.id].title,
-                                  start: e.event.start_date,
-                                  end: e.event.end_date,
-                                  className: 'pochi-event',
-                                  backgroundColor: $scope.licenses[events_per_license.id].color,
-                                  borderColor: 'white'
-                            });
+        var event = {title: $scope.licenses[events_per_license.id].title,
+                     _id: 'license-' + events_per_license.id,
+                     id: e.event.id,
+                     start: e.event.start_date,
+                     end: e.event.end_date,
+                     className: 'custom-license-event-' + events_per_license.id,
+                     backgroundColor: $scope.licenses[events_per_license.id].color,
+                     borderColor: 'white'
+                    };
+        initial_events.push(event);
+        $scope.licenses[events_per_license.id].events.push(event);
       });
     });
   });
@@ -107,7 +114,7 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
     });
   };
 
-  $scope.alertOnDropk = function(event, day, minute, allDay, revert, js, ui, view) {
+  $scope.alertOnDrop = function(event, day, minute, allDay, revert, js, ui, view) {
     $scope.$apply(function(){
       $scope.alertMessage = 'event';
     });
@@ -197,7 +204,7 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
   };
 
   $scope.modalOpts = modalOpts;
-  $scope.eventSources = [$scope.events, $scope.eventSource, $scope.eventsF];
+  $scope.eventSources = [$scope.events];
 
   $scope.activate_calendar = function(name) {
     alert("pochi");
@@ -208,6 +215,12 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
 
   $scope.dialogOpen = function() {
     $scope.newReservation = true;
+  };
+
+  $scope.switchLicense = function() {
+    this.license.visiable = false;
+    console.log(this);
+    $scope.myCalendar.fullCalendar('removeEvents', 'license-' + this.license.id);
   };
 
   $scope.dialogClose = function() {
