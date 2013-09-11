@@ -5,6 +5,7 @@ class Event < ActiveRecord::Base
   validates_presence_of :end_date
   validates_presence_of :content
   before_save :check_license, :update_count
+  before_destroy :destroy_license_count
 
   private
   def update_count
@@ -23,6 +24,14 @@ class Event < ActiveRecord::Base
         self.errors.add(:date, "#{date}のライセンス数の上限にひっかかっています")
         return false
       end
+    end
+  end
+
+  def destroy_license_count
+    self.start_date.upto(self.end_date) do |date|
+      license_count = self.schedule.license_counts.find_by_date(date)
+      license_count.count -= 1
+      license_count.save
     end
   end
 end

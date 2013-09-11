@@ -27,10 +27,13 @@ class EventsController < ApplicationController
 
   def update
     event = Event.find(params[:id])
-    if event.update_attributes(:start_date  => params[:start_date],
-                               :end_date    => params[:end_date],
-                               :schedule_id => params[:schedule_id],
-                               :content     => params[:content])
+    event.destroy
+    event = current_schedule.events.build do |e|
+      e.start_date = params[:start_date]
+      e.end_date = params[:end_date]
+      e.content = params[:content]
+    end
+    if event.save
       respond_to do |format|
         format.json { render :json => event }
       end

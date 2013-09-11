@@ -319,8 +319,15 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
                      className: 'custom-license-event-' + e.event.schedule_id,
                      borderColor: 'white'
                     };
-        $scope.myCalendar.fullCalendar("removeEvents", event._id);
+        $scope.myCalendar.fullCalendar("removeEvents", 'event-' + newEvent.eventId);
         $scope.myCalendar.fullCalendar("renderEvent", event,  true);
+        var replaceEvents = [];
+        var currentEvents = $scope.licenses[e.event.schedule_id].events;
+        for(var i=0;i<currentEvents;i++) {
+          if (currentEvents[i]._id !== 'event-' + newEvent.eventId)
+            replaceEvents.push(currentEvents[i]);
+        }
+        $scope.licenses[e.event.schedule_id].events = replaceEvents;
         $scope.licenses[e.event.schedule_id].events.push(event);
         $scope.newReservation = false;
       }, function error(response) {
