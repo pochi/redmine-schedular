@@ -47,7 +47,7 @@
         <div modal="newReservation" close="dialogClose()" options="opts">
           <div class="modal-header">
             <h3>{{ modalOpts.title }}</h3>
-
+            <a ng-show='modalOpts.delete' ng-click='deleteEvent()'>x 削除</a>
           </div>
           <div class="modal-body">
             <div class="alert-error calAlert">

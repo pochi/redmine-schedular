@@ -38,7 +38,8 @@ eventsService.factory('Events', function($resource) {
 
 calendarApp.value('modalOpts', {
   backdropFade: true,
-  dialogFade:true
+  dialogFade:true,
+  delete: false
 });
 
 calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Event, Events, modalOpts) {
@@ -158,6 +159,7 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
     $scope.$apply(function(){
       $scope.modalOpts.title = '更新';
       $scope.modalOpts.submitText = '更新';
+      $scope.modalOpts.delete = true;
 
       if(event.end === null)
         event.end = event.start;
@@ -243,6 +245,7 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
   $scope.initializeDialog = function() {
     $scope.modalOpts.title = '新規予約';
     $scope.modalOpts.submitText = '作成';
+    $scope.modalOpts.delete = false;
     $scope.title = null;
     $scope.license = null;
     $scope.eventId = null;
@@ -281,6 +284,26 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
     $scope.closeMsg = 'I was closed at: ' + new Date();
     $scope.newReservation = false;
     $scope.alertEventMessage = '';
+  };
+
+  $scope.deleteEvent = function() {
+    console.log(this);
+    var resource = new Event();
+    resource.project_id = this.project_id;
+    resource.schedule_id = this.license;
+    resource.event_id = this.eventId;
+    resource.$delete(function(e, _){
+      var replaceEvents = [];
+      var currentEvents = $scope.licenses[e.event.schedule_id].events;
+      for(var i=0;i<currentEvents;i++) {
+        if (currentEvents[i]._id !== 'event-' + e.event.id)
+          replaceEvents.push(currentEvents[i]);
+      }
+      $scope.myCalendar.fullCalendar("removeEvents", 'event-' + e.event.id);
+      $scope.licenses[e.event.schedule_id].events = replaceEvents;
+      $scope.licenses[e.event.schedule_id].events.push(event);
+      $scope.newReservation = false;
+    });
   };
 
   $scope.createEvent = function(newEvent) {
