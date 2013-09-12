@@ -28,18 +28,18 @@ class EventsController < ApplicationController
   def update
     event = Event.find(params[:id])
     event.destroy
-    event = current_schedule.events.build do |e|
-      e.start_date = params[:start_date]
-      e.end_date = params[:end_date]
-      e.content = params[:content]
+    recreate_event = current_schedule.events.build do |e|
+      e.start_date = params[:start_date] || event.start_date
+      e.end_date = params[:end_date] || event.end_date
+      e.content = params[:content] || event.content
     end
-    if event.save
+    if recreate_event.save
       respond_to do |format|
-        format.json { render :json => event }
+        format.json { render :json => recreate_event }
       end
     else
       respond_to do |format|
-        format.json { render :json => event.errors, :status => :unprocessable_entity }
+        format.json { render :json => recreate_event.errors, :status => :unprocessable_entity }
       end
     end
   end
