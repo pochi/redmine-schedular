@@ -123,15 +123,6 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
 
   $scope.alertOnDrop = function(event, day, minute, allDay, revert, js, ui, view) {
     $scope.$apply(function(){
-      console.log("aaaaaaaaaaaaaaaaaaaa");
-      $scope.alertMessage = 'event';
-    });
-  };
-
-  $scope.eventResize = function(event, day, minute, revert, js, ui, view) {
-    $scope.$apply(function(){
-      console.log("oooooooooooo");
-      console.log(event.className);
       var currentEventId = event._id;
 
       var resource = new Event();
@@ -142,10 +133,6 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
       resource.schedule_id = scheduleIdArray[scheduleIdArray.length-1];
       resource.start_date = event.start + 60*60*24;
       resource.end_date = event.end + 60*60*24;
-
-      console.log("aaaaaaa");
-      console.log(resource);
-      console.log("aaaaaaa");
 
       resource.$update(function(e,_) {
         var event = {title: e.event.content,
@@ -167,7 +154,45 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
         $scope.licenses[e.event.schedule_id].events = replaceEvents;
         $scope.licenses[e.event.schedule_id].events.push(event);
         $scope.newReservation = false;
-      console.log("oooooooooooo");
+      }, function error(response) {
+        console.log(response);
+      });
+    });
+  };
+
+  $scope.eventResize = function(event, day, minute, revert, js, ui, view) {
+    $scope.$apply(function(){
+      var currentEventId = event._id;
+
+      var resource = new Event();
+      resource.project_id = $scope.project_id;
+      var eventIdArray = event._id.split("-");
+      var scheduleIdArray = event.className[0].split("-");
+      resource.event_id = eventIdArray[eventIdArray.length-1];
+      resource.schedule_id = scheduleIdArray[scheduleIdArray.length-1];
+      resource.start_date = event.start + 60*60*24;
+      resource.end_date = event.end + 60*60*24;
+
+      resource.$update(function(e,_) {
+        var event = {title: e.event.content,
+                     _id: 'event-' + e.event.id,
+                     start: e.event.start_date,
+                     end: e.event.end_date,
+                     backgroundColor: $scope.licenses[e.event.schedule_id].color,
+                     className: 'custom-license-event-' + e.event.schedule_id,
+                     borderColor: 'white'
+                    };
+        $scope.myCalendar.fullCalendar("removeEvents", currentEventId);
+        $scope.myCalendar.fullCalendar("renderEvent", event,  true);
+        var replaceEvents = [];
+        var currentEvents = $scope.licenses[e.event.schedule_id].events;
+        for(var i=0;i<currentEvents;i++) {
+          if (currentEvents[i]._id !== currentEventId)
+            replaceEvents.push(currentEvents[i]);
+        }
+        $scope.licenses[e.event.schedule_id].events = replaceEvents;
+        $scope.licenses[e.event.schedule_id].events.push(event);
+        $scope.newReservation = false;
       }, function error(response) {
         console.log(response);
       });
@@ -175,6 +200,7 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
   };
 
   $scope.changeView = function(view) {
+    console.log("calendar-------------------");
     $scope.myCalendar.fullCalendar('changeView', view);
   };
 
@@ -239,6 +265,7 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
       eventDrop: $scope.alertOnDrop,
       eventResize: $scope.eventResize,
       eventClick: $scope.editEvent,
+      prev: $scope.prevEvent,
       weekends: false,
       firstDay: 1,
       selectable: true,
@@ -326,6 +353,10 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
     $scope.closeMsg = 'I was closed at: ' + new Date();
     $scope.newReservation = false;
     $scope.alertEventMessage = '';
+  };
+
+  $scope.prevEvent = function() {
+    console.log("hogeevent");
   };
 
   $scope.deleteEvent = function() {
