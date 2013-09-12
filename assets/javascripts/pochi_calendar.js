@@ -5,6 +5,12 @@
 
 var calendarApp = angular.module('calendarApp', ['ui.calendar', 'ui.bootstrap','eventService', 'eventsService']);
 
+calendarApp.config([
+  "$httpProvider", function($httpProvider) {
+    $httpProvider.defaults.headers.common['X-CSRF-Token'] = $('meta[name=csrf-token]').attr('content');
+  }
+]);
+
 calendarApp.run(function($rootScope, $location) {
   $rootScope.location = $location;
 });
@@ -96,6 +102,7 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
   for(var i=0;i<=31;i++) {
     $scope.option_days.push(i);
   }
+
 
 
   $scope.eventSource = {
@@ -406,6 +413,7 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
       });
     } else {
       resource.event_id = newEvent.eventId;
+
       resource.$update(function(e,_) {
         var event = {title: e.event.content,
                      _id: 'event-' + e.event.id,

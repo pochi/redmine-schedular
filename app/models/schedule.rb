@@ -21,7 +21,7 @@ class Schedule < ActiveRecord::Base
       license: license,
       color: color,
       events: self.events.where("start_date > ?", date - 1.week)
-                         .where("end_date < ?", date + 1.month + 1.week) }
+                         .where("start_date < ?", date + 1.month + 1.week) }
   end
 
   private

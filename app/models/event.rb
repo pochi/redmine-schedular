@@ -28,7 +28,7 @@ class Event < ActiveRecord::Base
   end
 
   def destroy_license_count
-    self.start_date.upto(self.end_date) do |date|
+    self.start_date.upto(self.end_date || self.start_date) do |date|
       license_count = self.schedule.license_counts.find_by_date(date)
       license_count.count -= 1
       license_count.save
