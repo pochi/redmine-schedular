@@ -103,8 +103,6 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
     $scope.option_days.push(i);
   }
 
-
-
   $scope.eventSource = {
     className: "pochi-event"
   };
@@ -374,6 +372,10 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
 
   $scope.prevEvent = function() {
     console.log("hogeevent");
+  };
+
+  $scope.bgstyle = function(color) {
+    return {backgroundColor: color};
   };
 
   $scope.deleteEvent = function() {

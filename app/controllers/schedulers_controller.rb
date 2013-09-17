@@ -14,7 +14,6 @@ class SchedulersController < ApplicationController
                end
             end
 
-    logger.info(events)
     respond_to do |format|
       format.json do
         render :json => events.to_json
