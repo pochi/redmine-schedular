@@ -138,8 +138,13 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
       var scheduleIdArray = event.className[0].split("-");
       resource.event_id = eventIdArray[eventIdArray.length-1];
       resource.schedule_id = scheduleIdArray[scheduleIdArray.length-1];
-      resource.start_date = event.start + 60*60*24;
-      resource.end_date = event.end + 60*60*24;
+
+      resource.start_date = event.start.getFullYear() + "-" + (event.start.getMonth() + 1) + "-" + event.start.getDate();
+      if(event.end !== null) {
+        resource.end_date = event.end.getFullYear() + "-" + (event.end.getMonth() + 1) + "-" + event.end.getDate();
+      } else {
+        resource.end_date  = resource.start_date;
+      }
 
       resource.$update(function(e,_) {
         var event = {title: e.event.content,
@@ -177,8 +182,13 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
       var scheduleIdArray = event.className[0].split("-");
       resource.event_id = eventIdArray[eventIdArray.length-1];
       resource.schedule_id = scheduleIdArray[scheduleIdArray.length-1];
-      resource.start_date = event.start + 60*60*24;
-      resource.end_date = event.end + 60*60*24;
+
+      resource.start_date = event.start.getFullYear() + "-" + (event.start.getMonth() + 1) + "-" + event.start.getDate();
+      if(event.end !== null) {
+        resource.end_date = event.end.getFullYear() + "-" + (event.end.getMonth() + 1) + "-" + event.end.getDate();
+      } else {
+        resource.end_date  = resource.start_date;
+      }
 
       resource.$update(function(e,_) {
         var event = {title: e.event.content,
