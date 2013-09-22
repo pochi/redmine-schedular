@@ -50,7 +50,14 @@ calendarApp.value('modalOpts', {
   delete: false
 });
 
-calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Event, Events, modalOpts) {
+calendarApp.value('eventHelper', {
+  getEventId: function(eventId) {
+    var eventIdArray = eventId.split('-');
+    return eventIdArray[eventIdArray.length-1];
+  }
+});
+
+calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Event, Events, modalOpts, eventHelper) {
   var date = new Date();
   var d = date.getDate();
   var m = date.getMonth();
@@ -100,13 +107,6 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
   for(var i=0;i<=31;i++) {
     $scope.option_days.push(i);
   }
-
-
-  $scope.alertEventOnClick = function(date, allDay, event, view) {
-    $scope.$apply(function(){
-      $scope.alertMessage = '予約が完了しました';
-    });
-  };
 
   $scope.alertOnDrop = function(event, day, minute, allDay, revert, js, ui, view) {
     $scope.$apply(function(){
@@ -197,46 +197,18 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
   };
 
   $scope.selectEvent = function(start, end, allDay) {
-    $scope.initializeDialog();
-
-    $scope.startYear = start.getFullYear();
-    $scope.startMonth = start.getMonth() + 1;
-    $scope.startDate = start.getDate();
-
-    $scope.endYear = end.getFullYear();
-    $scope.endMonth = end.getMonth() + 1;
-    $scope.endDate = end.getDate();
-
-    $scope.newReservation = true;
-    $scope.myCalendar.fullCalendar("unselect");
     $scope.$apply(function() {
-      console.log(start);
+      $scope.initializeDialog();
+      $scope.setEventDateFromStartAndEnd(start, end);
+      $scope.newReservation = true;
+      $scope.myCalendar.fullCalendar("unselect");
     });
   };
 
   $scope.editEvent = function(event) {
     $scope.$apply(function(){
-      $scope.modalOpts.title = '更新';
-      $scope.modalOpts.submitText = '更新';
-      $scope.modalOpts.delete = true;
-
-      if(event.end === null)
-        event.end = event.start;
-
-      var eventIdArray = event._id.split('-');
-      $scope.eventId = eventIdArray[eventIdArray.length-1];
-      $scope.startYear = event.start.getFullYear();
-      $scope.startMonth = event.start.getMonth() + 1;
-      $scope.startDate = event.start.getDate();
-
-      $scope.endYear = event.end.getFullYear();
-      $scope.endMonth = event.end.getMonth() + 1;
-      $scope.endDate = event.end.getDate();
-
-      $scope.title = event.title;
-      var customEventArray = event.className[0].split('-');
-      $scope.license = customEventArray[customEventArray.length-1];
-      console.log($scope.license);
+      $scope.updateModalOpts();
+      $scope.updateEvent(event);
       $scope.newReservation = true;
     });
   };
@@ -290,7 +262,6 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
         center :'',
         right: ''
       },
-      dayClick: $scope.alertEventOnClick,
       select: $scope.selectEvent,
       eventDrop: $scope.alertOnDrop,
       eventResize: $scope.eventResize,
@@ -409,6 +380,7 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
     });
   };
 
+
   $scope.createEvent = function(newEvent) {
     var resource = new Event();
     resource.project_id = $scope.project_id;
@@ -419,20 +391,9 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
 
     if (!newEvent.eventId) {
       resource.$save(function(e, _) {
-        var event = {title: e.event.content,
-                     _id: 'event-' + e.event.id,
-                     start: e.event.start_date,
-                     end: e.event.end_date,
-                     backgroundColor: $scope.licenses[e.event.schedule_id].color,
-                     className: 'custom-license-event-' + e.event.schedule_id,
-                     borderColor: 'white'
-                    };
-        $scope.myCalendar.fullCalendar("renderEvent", event,  true);
-        $scope.licenses[e.event.schedule_id].events.push(event);
-        $scope.newReservation = false;
+        $scope.afterCreate(e);
       }, function error(response) {
         $scope.alertEventMessage = 'ライセンス数の上限を超えています';
-        console.log(response);
       });
     } else {
       resource.event_id = newEvent.eventId;
@@ -462,6 +423,56 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
       });
     }
   };
+
+  // Event update of $scope.
+  // Follow methods are private methods.
+  $scope.updateModalOpts = function() {
+    $scope.modalOpts.title = '更新';
+    $scope.modalOpts.submitText = '更新';
+    $scope.modalOpts.delete = true;
+  };
+
+  $scope.updateEvent = function(event) {
+    $scope.eventId = eventHelper.getEventId(event._id);
+    $scope.setEventDate(event);
+    $scope.title = event.title;
+
+    var customEventArray = event.className[0].split('-');
+    $scope.license = customEventArray[customEventArray.length-1];
+  };
+
+  $scope.setEventDate = function(event) {
+    if(event.end === null)
+      event.end = event.start;
+    $scope.setEventDateFromStartAndEnd(event.start, event.end);
+  };
+
+  $scope.setEventDateFromStartAndEnd = function(start, end) {
+    $scope.startYear = start.getFullYear();
+    $scope.startMonth = start.getMonth() + 1;
+    $scope.startDate = start.getDate();
+
+    $scope.endYear = end.getFullYear();
+    $scope.endMonth = end.getMonth() + 1;
+    $scope.endDate = end.getDate();
+  };
+
+
+  // resource event callback
+  $scope.afterCreate = function(e) {
+    var event = {title: e.event.content,
+                 _id: 'event-' + e.event.id,
+                 start: e.event.start_date,
+                 end: e.event.end_date,
+                 backgroundColor: $scope.licenses[e.event.schedule_id].color,
+                 className: 'custom-license-event-' + e.event.schedule_id,
+                 borderColor: 'white'
+                };
+    $scope.myCalendar.fullCalendar("renderEvent", event,  true);
+    $scope.licenses[e.event.schedule_id].events.push(event);
+    $scope.newReservation = false;
+  };
+
 });
 
 // ng-model以外のイベントはこっちでやる。
