@@ -59,38 +59,44 @@
                       name="event[start_date(1i)]"
                       ng-model="newEvent.startYear"
                       ng-options="year for year in option_years"
-                      ng-init="newEvent.startYear = startYear">
+                      ng-init="newEvent.startYear = startYear"
+                      required>
               </select>
               <select id="event_start_date_2i"
                       name="event[start_date(2i)]"
                       ng-model="newEvent.startMonth"
                       ng-options="month for month in option_months"
-                      ng-init="newEvent.startMonth = startMonth">
+                      ng-init="newEvent.startMonth = startMonth"
+                      required>
               </select>
               <select id="event_start_date_3i"
                       name="event[start_date(3i)]"
                       ng-model="newEvent.startDate"
                       ng-options="day for day in option_days"
-                      ng-init="newEvent.startDate = startDate">
+                      ng-init="newEvent.startDate = startDate"
+                      required>
               </select>
             -
               <select id="event_end_date_1i"
                       name="event[end_date(1i)]"
                       ng-model="newEvent.endYear"
                       ng-options="year for year in option_years"
-                      ng-init="newEvent.endYear = endYear">
+                      ng-init="newEvent.endYear = endYear"
+                      required>
               </select>
               <select id="event_end_date_2i"
                       name="event[end_date(2i)]"
                       ng-model="newEvent.endMonth"
                       ng-options="month for month in option_months"
-                      ng-init="newEvent.endMonth = endMonth">
+                      ng-init="newEvent.endMonth = endMonth"
+                      required>
               </select>
               <select id="event_end_date_3i"
                       name="event[end_date(3i)]"
                       ng-model="newEvent.endDate"
                       ng-options="day for day in option_days"
-                      ng-init="newEvent.endDate = endDate">
+                      ng-init="newEvent.endDate = endDate"
+                      required>
               </select>
               <br>
               <span class="error" ng-show="dateIsNotFilled(newEvent)">日付は必須項目です</span>
@@ -125,7 +131,7 @@
           </div>
           <div class="modal-footer">
             <button class="btn" ng-click="dialogClose()">キャンセル</button>
-            <button class="btn" ng-click="createEvent(newEvent)">{{ modalOpts.submitText }}</button>
+            <button class="btn" ng-click="createEvent(newEvent)" ng-disabled="newEvent.$invalid">{{ modalOpts.submitText }}</button>
           </div>
         </div>
       </div>
