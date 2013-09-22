@@ -473,6 +473,23 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
     $scope.newReservation = false;
   };
 
+  $scope.dateIsNotFilled = function(event) {
+    if(!event.endDate)
+      return true;
+    if(!event.endMonth)
+      return true;
+    if(!event.endYear)
+      return true;
+    if(!event.startDate)
+      return true;
+    if(!event.startMonth)
+      return true;
+    if(!event.startYear)
+      return true;
+
+    return false;
+  };
+
 });
 
 // ng-model以外のイベントはこっちでやる。

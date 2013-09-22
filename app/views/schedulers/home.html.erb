@@ -92,6 +92,8 @@
                       ng-options="day for day in option_days"
                       ng-init="newEvent.endDate = endDate">
               </select>
+              <br>
+              <span class="error" ng-show="dateIsNotFilled(newEvent)">日付は必須項目です</span>
 
               <br>
             内容<br>
@@ -117,7 +119,7 @@
                 <% end %>
               </select>
               <br>
-              <span class="error" ng-show="!newEvent.license">Required!</span>
+              <span class="error" ng-show="!newEvent.license">ライセンスは必須項目です</span>
 
             </form>
           </div>
