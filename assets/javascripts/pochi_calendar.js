@@ -33,6 +33,8 @@ var eventsService = angular.module('eventsService', ['ngResource']);
 eventsService.factory('Events', function($resource) {
   return $resource('/projects/:project_id/schedulers/', {
     project_id: '@project_id',
+    year: '@year',
+    month: '@month',
     format: 'json'
   }, {
     query: {
@@ -62,6 +64,8 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
   $scope.updateEvent = false;
   $scope.eventSource = {
     className: "pochi-event"
+  };
+  $scope.loaded = {
   };
 
   $scope.eventsF = function(start, end, callback) {
@@ -240,29 +244,35 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
   // next button, prev button
   // Event manage
   $scope.viewDisplay = function(view) {
-    Events.get({project_id: $scope.project_id}, function(schedules, header) {
-      angular.forEach(schedules, function(events_per_license, key) {
-        $scope.licenses[events_per_license.id] = { id: events_per_license.id,
-                                                   color: events_per_license.color,
-                                                   title: events_per_license.name,
-                                                   events: [],
-                                                   visiable: 'active' };
+    var currentYear = view.start.getFullYear();
+    var currentMonth = view.start.getMonth() + 1;
 
-        angular.forEach(events_per_license['events'], function(e) {
-          var event = {title: e.event.content,
-                       _id: 'event-' + e.event.id,
-                       start: e.event.start_date,
-                       end: e.event.end_date,
-                       className: 'custom-license-event-' + events_per_license.id,
-                       backgroundColor: $scope.licenses[events_per_license.id].color,
-                       borderColor: 'white'
-                      };
-          $scope.events.push(event);
-          $scope.licenses[events_per_license.id].events.push(event);
+    if($scope.loaded[currentYear+currentMonth] === undefined) {
+      Events.get({project_id: $scope.project_id, year: currentYear, month: currentMonth}, function(schedules, header) {
+        angular.forEach(schedules, function(events_per_license, key) {
+          $scope.licenses[events_per_license.id] = { id: events_per_license.id,
+                                                     color: events_per_license.color,
+                                                     title: events_per_license.name,
+                                                     events: [],
+                                                     visiable: 'active' };
+
+          angular.forEach(events_per_license['events'], function(e) {
+            var event = {title: e.event.content,
+                         _id: 'event-' + e.event.id,
+                         start: e.event.start_date,
+                         end: e.event.end_date,
+                         className: 'custom-license-event-' + events_per_license.id,
+                         backgroundColor: $scope.licenses[events_per_license.id].color,
+                         borderColor: 'white'
+                        };
+            $scope.events.push(event);
+            $scope.licenses[events_per_license.id].events.push(event);
+          });
         });
+        console.log($scope.events);
       });
-      console.log($scope.events);
-    });
+      $scope.loaded[currentYear+currentMonth] = true;
+    }
     console.log("view");
     console.log(view);
     console.log(view.start);

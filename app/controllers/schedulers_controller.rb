@@ -67,7 +67,7 @@ class SchedulersController < ApplicationController
 
   def current_date
     if params[:year] and params[:month]
-      Date.new(params[:year], params[:month])
+      Date.new(params[:year].to_i, params[:month].to_i)
     else
       Date.new(Time.now.year, Time.now.month)
     end
