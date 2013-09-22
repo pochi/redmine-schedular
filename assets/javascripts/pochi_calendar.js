@@ -361,63 +361,25 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
   };
 
   $scope.deleteEvent = function() {
-    console.log(this);
-    var resource = new Event();
-    resource.project_id = this.project_id;
-    resource.schedule_id = this.license;
-    resource.event_id = this.eventId;
+    var resource = $scope.replaceEventModelFrom(this);
     resource.$delete(function(e, _){
-      var replaceEvents = [];
-      var currentEvents = $scope.licenses[e.event.schedule_id].events;
-      for(var i=0;i<currentEvents;i++) {
-        if (currentEvents[i]._id !== 'event-' + e.event.id)
-          replaceEvents.push(currentEvents[i]);
-      }
-      $scope.myCalendar.fullCalendar("removeEvents", 'event-' + e.event.id);
-      $scope.licenses[e.event.schedule_id].events = replaceEvents;
-      $scope.licenses[e.event.schedule_id].events.push(event);
-      $scope.newReservation = false;
+      $scope.afterDelete(e);
+    }, function error(response) {
+        console.log(response);
     });
   };
 
-
   $scope.createEvent = function(newEvent) {
-    var resource = new Event();
-    resource.project_id = $scope.project_id;
-    resource.schedule_id = newEvent.license;
-    resource.start_date = newEvent.startYear + "-" + newEvent.startMonth + "-" + newEvent.startDate;
-    resource.end_date = newEvent.endYear + "-" + newEvent.endMonth + "-" + newEvent.endDate;
-    resource.content = newEvent.content;
-
-    if (!newEvent.eventId) {
+    var resource = $scope.replaceEventModelFrom(newEvent);
+    if (!resource.event_id) {
       resource.$save(function(e, _) {
         $scope.afterCreate(e);
       }, function error(response) {
         $scope.alertEventMessage = 'ライセンス数の上限を超えています';
       });
     } else {
-      resource.event_id = newEvent.eventId;
-
       resource.$update(function(e,_) {
-        var event = {title: e.event.content,
-                     _id: 'event-' + e.event.id,
-                     start: e.event.start_date,
-                     end: e.event.end_date,
-                     backgroundColor: $scope.licenses[e.event.schedule_id].color,
-                     className: 'custom-license-event-' + e.event.schedule_id,
-                     borderColor: 'white'
-                    };
-        $scope.myCalendar.fullCalendar("removeEvents", 'event-' + newEvent.eventId);
-        $scope.myCalendar.fullCalendar("renderEvent", event,  true);
-        var replaceEvents = [];
-        var currentEvents = $scope.licenses[e.event.schedule_id].events;
-        for(var i=0;i<currentEvents;i++) {
-          if (currentEvents[i]._id !== 'event-' + newEvent.eventId)
-            replaceEvents.push(currentEvents[i]);
-        }
-        $scope.licenses[e.event.schedule_id].events = replaceEvents;
-        $scope.licenses[e.event.schedule_id].events.push(event);
-        $scope.newReservation = false;
+        $scope.afterUpdate(e, newEvent.eventId);
       }, function error(response) {
         console.log(response);
       });
@@ -426,6 +388,17 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
 
   // Event update of $scope.
   // Follow methods are private methods.
+  $scope.replaceEventModelFrom = function(event) {
+    var resource = new Event();
+    resource.project_id = $scope.project_id;
+    resource.event_id = event.eventId;
+    resource.schedule_id = event.license;
+    resource.start_date = event.startYear + "-" + event.startMonth + "-" + event.startDate;
+    resource.end_date = event.endYear + "-" + event.endMonth + "-" + event.endDate;
+    resource.content = event.content;
+    return resource;
+  };
+
   $scope.updateModalOpts = function() {
     $scope.modalOpts.title = '更新';
     $scope.modalOpts.submitText = '更新';
@@ -451,12 +424,10 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
     $scope.startYear = start.getFullYear();
     $scope.startMonth = start.getMonth() + 1;
     $scope.startDate = start.getDate();
-
     $scope.endYear = end.getFullYear();
     $scope.endMonth = end.getMonth() + 1;
     $scope.endDate = end.getDate();
   };
-
 
   // resource event callback
   $scope.afterCreate = function(e) {
@@ -469,6 +440,41 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
                  borderColor: 'white'
                 };
     $scope.myCalendar.fullCalendar("renderEvent", event,  true);
+    $scope.licenses[e.event.schedule_id].events.push(event);
+    $scope.newReservation = false;
+  };
+
+  $scope.afterDelete = function(e) {
+    var replaceEvents = [];
+    var currentEvents = $scope.licenses[e.event.schedule_id].events;
+    for(var i=0;i<currentEvents;i++) {
+      if (currentEvents[i]._id !== 'event-' + e.event.id)
+        replaceEvents.push(currentEvents[i]);
+    }
+    $scope.myCalendar.fullCalendar("removeEvents", 'event-' + e.event.id);
+    $scope.licenses[e.event.schedule_id].events = replaceEvents;
+    $scope.licenses[e.event.schedule_id].events.push(event);
+    $scope.newReservation = false;
+  };
+
+  $scope.afterUpdate = function(e, beforeEventId) {
+    var event = {title: e.event.content,
+                 _id: 'event-' + e.event.id,
+                 start: e.event.start_date,
+                 end: e.event.end_date,
+                 backgroundColor: $scope.licenses[e.event.schedule_id].color,
+                 className: 'custom-license-event-' + e.event.schedule_id,
+                 borderColor: 'white'
+                };
+    $scope.myCalendar.fullCalendar("removeEvents", 'event-' + beforeEventId);
+    $scope.myCalendar.fullCalendar("renderEvent", event,  true);
+    var replaceEvents = [];
+    var currentEvents = $scope.licenses[e.event.schedule_id].events;
+    for(var i=0;i<currentEvents;i++) {
+      if (currentEvents[i]._id !== 'event-' + beforeEventId)
+        replaceEvents.push(currentEvents[i]);
+    }
+    $scope.licenses[e.event.schedule_id].events = replaceEvents;
     $scope.licenses[e.event.schedule_id].events.push(event);
     $scope.newReservation = false;
   };
