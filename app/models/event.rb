@@ -4,6 +4,7 @@ class Event < ActiveRecord::Base
   validates_presence_of :start_date
   validates_presence_of :end_date
   validates_presence_of :content
+  validates_presence_of :user_id
   before_save :check_license, :update_count
   before_destroy :destroy_license_count
 
