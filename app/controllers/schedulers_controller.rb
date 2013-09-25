@@ -1,6 +1,7 @@
 class SchedulersController < ApplicationController
   unloadable
-  before_filter :current_project, :current_schedules
+  before_filter :current_project, :current_schedules, :current_user
+  before_filter :login_required, :only => [:home]
 
   def home
     render :layout => false
@@ -71,5 +72,14 @@ class SchedulersController < ApplicationController
     else
       Date.new(Time.now.year, Time.now.month)
     end
+  end
+
+  def current_user
+    User.current = User.find(session[:user_id]) if session[:user_id]
+  end
+
+  def login_required
+    return true if User.current.logged?
+    require_login
   end
 end

@@ -3,7 +3,7 @@
 
 'use strict';
 
-var calendarApp = angular.module('calendarApp', ['ui.calendar', 'ui.bootstrap','eventService', 'eventsService']);
+var calendarApp = angular.module('calendarApp', ['ui.calendar', 'ui.bootstrap','eventService', 'eventsService', 'licenseParticipationService']);
 
 calendarApp.config([
   "$httpProvider", function($httpProvider) {
@@ -44,6 +44,15 @@ eventsService.factory('Events', function($resource) {
   });
 });
 
+var licenseParticipationService = angular.module('licenseParticipationService', ['ngResource']);
+licenseParticipationService.factory("LicenseParticipation", function($resource) {
+  return $resource('/projects/:project_id/schedulers/:schedule_id/participations', {
+    project_id: '@project_id',
+    schedule_id: '@schedule_id',
+    format: 'json'
+  });
+});
+
 calendarApp.value('modalOpts', {
   backdropFade: true,
   dialogFade:true,
@@ -57,7 +66,7 @@ calendarApp.value('eventHelper', {
   }
 });
 
-calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Event, Events, modalOpts, eventHelper) {
+calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Event, Events, LicenseParticipation, modalOpts, eventHelper) {
   var date = new Date();
   var d = date.getDate();
   var m = date.getMonth();
@@ -221,12 +230,14 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
 
     if($scope.loaded[currentYear+currentMonth] === undefined) {
       Events.get({project_id: $scope.project_id, year: currentYear, month: currentMonth}, function(schedules, header) {
+
         angular.forEach(schedules, function(events_per_license, key) {
+          var visiableClass = events_per_license.visiable ? 'active' : 'hidden-decorator';
           $scope.licenses[events_per_license.id] = { id: events_per_license.id,
                                                      color: events_per_license.color,
                                                      title: events_per_license.name,
                                                      events: [],
-                                                     visiable: 'active' };
+                                                     visiable: visiableClass };
 
           angular.forEach(events_per_license['events'], function(e) {
             var event = {title: e.event.content,
@@ -237,7 +248,9 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
                          backgroundColor: $scope.licenses[events_per_license.id].color,
                          borderColor: 'white'
                         };
-            $scope.events.push(event);
+
+            if(events_per_license.visiable)
+              $scope.events.push(event);
             $scope.licenses[events_per_license.id].events.push(event);
           });
         });
@@ -328,25 +341,39 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
   };
 
   $scope.switchLicense = function() {
+    var licenseParticipation = new LicenseParticipation();
+    licenseParticipation.project_id = $scope.project_id;
+    licenseParticipation.schedule_id = this.license.id;
+    var self = this;
+    // POST Request
     if (this.license.visiable === 'active') {
-      var removeIds = [];
-      var events = $scope.licenses[this.license.id].events;
-      for(var i=0;i<events.length;i++) {
-        console.log(events[i]);
-        removeIds.push(events[i]._id);
-      }
-      var filter = function(e) {
-        for(var i=0; i<removeIds.length; i++) {
-          if(removeIds[i] ===  e._id)
-            return true;
+      licenseParticipation.$save(function(e, _) {
+        var removeIds = [];
+        var events = $scope.licenses[self.license.id].events;
+        for(var i=0;i<events.length;i++) {
+          console.log(events[i]);
+          removeIds.push(events[i]._id);
         }
-        return false;
-      };
-      $scope.myCalendar.fullCalendar('removeEvents', filter);
-      this.license.visiable = 'hidden-decorator';
+        var filter = function(event) {
+          for(var i=0; i<removeIds.length; i++) {
+            if(removeIds[i] ===  event._id)
+              return true;
+          }
+          return false;
+        };
+        $scope.myCalendar.fullCalendar('removeEvents', filter);
+        self.license.visiable = 'hidden-decorator';
+      }, function error(response) {
+        $scope.alertEventMessage = 'Fail on update user license visiable request';
+      });
     } else {
-      $scope.myCalendar.fullCalendar('addEventSource', this.license.events);
-      this.license.visiable = 'active';
+
+      licenseParticipation.$delete(function(e, _) {
+        $scope.myCalendar.fullCalendar('addEventSource', self.license.events);
+        self.license.visiable = 'active';
+      }, function error(response) {
+        $scope.alertEventMessage = 'Fail on update user license visiable request';
+      });
     }
   };
 

@@ -6,6 +6,7 @@ class Schedule < ActiveRecord::Base
   validates_uniqueness_of :title, :scope => :project_id
   has_many :events, :dependent => :destroy
   has_many :license_counts, :dependent => :destroy
+  has_many :license_participations, :dependent => :destroy
 
   COLORS = [
     'rgb(179, 220, 108)',
@@ -21,7 +22,8 @@ class Schedule < ActiveRecord::Base
       license: license,
       color: color,
       events: self.events.where("start_date > ?", date)
-                         .where("start_date < ?", date + 1.month) }
+                         .where("start_date < ?", date + 1.month),
+      visiable: self.license_participations.find_by_user_id(User.current.id) ? false : true }
   end
 
   private

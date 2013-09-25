@@ -6,6 +6,8 @@ Rails.application.routes.draw do
     match '/schedulers/home' => 'schedulers#home'
     resources :schedulers do
       resources :events
+      resource :participations, :only => [:destroy]
+      resources :participations, :only => [:create]
     end
   end
 
