@@ -44,6 +44,15 @@
         </div>
         <div ui-calendar='uiConfig.calendar' ng-model='eventSources' config='uiConfig.calendar' calendar='myCalendar'></div>
 
+        <div modal="notificationMessage" close="notificationClose()">
+          <div class="modal-header">
+            <h5>{{notificationMessageContent}}</h5>
+          </div>
+          <div class="modal-footer">
+            <button class="btn" ng-click="notificationClose()">OK</button>
+          </div>
+        </div>
+
         <div modal="newReservation" close="dialogClose()" options="opts">
           <div class="modal-header">
             <h3>{{ modalOpts.title }}</h3>

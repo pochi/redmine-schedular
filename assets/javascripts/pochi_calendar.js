@@ -83,6 +83,7 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
   };
   $scope.loaded = {
   };
+  $scope.notificationMessage = false;
 
   $scope.eventsF = function(start, end, callback) {
     var s = new Date(start).getTime() / 1000;
@@ -156,6 +157,9 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
         $scope.licenses[e.event.schedule_id].events.push(event);
         $scope.newReservation = false;
       }, function error(response) {
+        $scope.notificationMessage = true;
+        $scope.notificationMessageContent = "ライセンス数の上限により、保存できませんでした";
+        revert();
         console.log(response);
       });
     });
@@ -200,6 +204,9 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
         $scope.licenses[e.event.schedule_id].events.push(event);
         $scope.newReservation = false;
       }, function error(response) {
+        $scope.notificationMessage = true;
+        $scope.notificationMessageContent = "ライセンス数の上限により、保存できませんでした";
+        revert();
         console.log(response);
       });
     });
@@ -383,6 +390,11 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
     $scope.alertEventMessage = '';
   };
 
+  $scope.notificationClose = function() {
+    $scope.notificationMessage = false;
+  };
+
+
   $scope.bgstyle = function(color) {
     return {backgroundColor: color};
   };
@@ -482,6 +494,8 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
     $scope.licenses[e.event.schedule_id].events = replaceEvents;
     $scope.licenses[e.event.schedule_id].events.push(event);
     $scope.newReservation = false;
+    $scope.notificationMessageContent = "予定を削除しました";
+    $scope.notificationMessage = true;
   };
 
   $scope.afterUpdate = function(e, beforeEventId) {
