@@ -5,7 +5,7 @@ Rails.application.routes.draw do
   resources :projects do
     match '/schedulers/home' => 'schedulers#home'
     resources :schedulers do
-      resources :events
+      resources :events, :only => [:create, :update, :destroy]
       resource :participations, :only => [:destroy]
       resources :participations, :only => [:create]
     end

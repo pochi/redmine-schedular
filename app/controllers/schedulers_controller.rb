@@ -15,11 +15,7 @@ class SchedulersController < ApplicationController
                end
             end
 
-    respond_to do |format|
-      format.json do
-        render :json => events.to_json
-      end
-    end
+    render :json => events.to_json
   end
 
   def show
@@ -29,30 +25,26 @@ class SchedulersController < ApplicationController
   def create
     @schedule = Schedule.new(params[:schedule])
     if @schedule.save
-      respond_to do |format|
-        format.js { render :template => "schedulers/create.js.erb" }
-      end
+      render :template => "schedulers/create.js.erb"
     end
   end
 
   def update
     schedule = current_schedules.find(params[:id])
     if schedule.update_attributes(title: params[:title], license: params[:license])
-      respond_to do |format|
-        format.js { render :json => schedule }
-      end
+      render :json => schedule
     end
   end
 
   def destroy
     @schedule = current_project.schedules.find(params[:id])
     if @schedule.destroy
-      respond_to do |format|
-        format.js { render :template => "schedulers/destroy.js.erb" }
-      end
+      render :template => "schedulers/destroy.js.erb"
     end
   end
+end
 
+ApplicationController.class_eval do
   private
   def current_project
     begin
@@ -64,6 +56,14 @@ class SchedulersController < ApplicationController
 
   def current_schedules
     @schedules = current_project.schedules
+  end
+
+  def current_schedule
+    begin
+      @schedule ||= current_project.schedules.find(params[:scheduler_id])
+    rescue ActiveRecord::RecordNotFound
+      render_404
+    end
   end
 
   def current_date

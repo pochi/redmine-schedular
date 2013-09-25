@@ -22,29 +22,4 @@ class ParticipationsController < ApplicationController
       render :json => participation.errors, :status => :unprocessable_entity
     end
   end
-
-  private
-  def current_project
-    begin
-      @project ||= Project.find(params[:project_id])
-    rescue ActiveRecord::RecordNotFound
-      render_404
-    end
-  end
-
-  def current_schedule
-    begin
-      @schedule ||= current_project.schedules.find(params[:scheduler_id])
-    rescue ActiveRecord::RecordNotFound
-      render_404
-    end
-  end
-
-  def current_user
-    begin
-      @user ||= User.find(session[:user_id])
-    rescue ActiveRecord::RecordNotFound
-      render_404
-    end
-  end
 end
