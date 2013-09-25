@@ -233,11 +233,12 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
 
         angular.forEach(schedules, function(events_per_license, key) {
           var visiableClass = events_per_license.visiable ? 'active' : 'hidden-decorator';
-          $scope.licenses[events_per_license.id] = { id: events_per_license.id,
-                                                     color: events_per_license.color,
-                                                     title: events_per_license.name,
-                                                     events: [],
-                                                     visiable: visiableClass };
+          if($scope.licenses[events_per_license.id] === undefined)
+            $scope.licenses[events_per_license.id] = { id: events_per_license.id,
+                                                       color: events_per_license.color,
+                                                       title: events_per_license.name,
+                                                       events: [],
+                                                       visiable: visiableClass };
 
           angular.forEach(events_per_license['events'], function(e) {
             var event = {title: e.event.content,
@@ -367,7 +368,6 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
         $scope.alertEventMessage = 'Fail on update user license visiable request';
       });
     } else {
-
       licenseParticipation.$delete(function(e, _) {
         $scope.myCalendar.fullCalendar('addEventSource', self.license.events);
         self.license.visiable = 'active';
