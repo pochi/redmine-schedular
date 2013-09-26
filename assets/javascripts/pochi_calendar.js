@@ -3,7 +3,11 @@
 
 'use strict';
 
-var calendarApp = angular.module('calendarApp', ['ui.calendar', 'ui.bootstrap','eventService', 'eventsService', 'licenseParticipationService']);
+var calendarApp = angular.module('calendarApp', ['ui.calendar', 
+						 'ui.bootstrap',
+						 'eventService', 
+						 'eventsService', 
+						 'licenseParticipationService']);
 
 calendarApp.config([
   "$httpProvider", function($httpProvider) {
