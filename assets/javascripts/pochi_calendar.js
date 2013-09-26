@@ -3,11 +3,11 @@
 
 'use strict';
 
-var calendarApp = angular.module('calendarApp', ['ui.calendar', 
-						 'ui.bootstrap',
-						 'eventService', 
-						 'eventsService', 
-						 'licenseParticipationService']);
+var calendarApp = angular.module('calendarApp', ['ui.calendar',
+                                                 'ui.bootstrap',
+                                                 'eventService',
+                                                 'eventsService',
+                                                 'licenseParticipationService']);
 
 calendarApp.config([
   "$httpProvider", function($httpProvider) {
@@ -292,7 +292,7 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
       eventResize: $scope.eventResize,
       eventClick: $scope.editEvent,
       viewDisplay: $scope.viewDisplay,
-      weekends: false,
+      weekends: true,
       firstDay: 1,
       selectable: true,
       selectHelper: true,
