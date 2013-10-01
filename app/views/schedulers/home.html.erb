@@ -20,7 +20,6 @@
     <%= stylesheet_link_tag 'bootstrap-combined.min.css', :plugin => 'schedular' %>
   </head>
 
-
   <body ng-controller='CalendarCtrl'>
     <div class='row-fluid'>
       <div class='span2'>
@@ -111,16 +110,27 @@
               <span class="error" ng-show="dateIsNotFilled(newEvent)">日付は必須項目です</span>
 
               <br>
-            内容<br>
-              <input id="event_content"
-                     name="event[content]"
-                     ng-model="newEvent.content"
-                     ng-init="newEvent.content = title"
+            申請者<br>
+              <input id="event_user"
+                     name="event[user]"
+                     ng-model="newEvent.user"
+                     ng-init="newEvent.user = '<%= User.current.name %>'"
                      size="30"
                      type="text"
                      required>
               <br>
-              <span class="error" ng-show="!newEvent.content">内容は必須項目です</span>
+              <span class="error" ng-show="!newEvent.user">申請者は必須項目です</span>
+              <br>
+            チーム名<br>
+              <input id="event_team"
+                     name="event[team]"
+                     ng-model="newEvent.team"
+                     ng-init="newEvent.team = team"
+                     size="30"
+                     type="text"
+                     required>
+              <br>
+              <span class="error" ng-show="!newEvent.team">チーム名は必須項目です</span>
               <br>
             ライセンス<br>
               <!-- selectオプションに出てくるundefinedはAngularのバグ -->
@@ -135,7 +145,16 @@
               </select>
               <br>
               <span class="error" ng-show="!newEvent.license">ライセンスは必須項目です</span>
-
+              <br>
+            備考<br>
+              <input id="event_content"
+                     name="event[content]"
+                     ng-model="newEvent.content"
+                     ng-init="newEvent.content = title"
+                     size="30"
+                     type="text"
+                     required>
+              <br>
             </form>
           </div>
           <div class="modal-footer">

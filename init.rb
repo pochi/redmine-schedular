@@ -1,6 +1,7 @@
 require 'redmine'
 require 'scheduler_projects_helper_patch'
 require 'scheduler_projects_patch'
+require 'scheduler_version'
 
 Redmine::Plugin.register :schedular do
   name 'Schedular plugin'
@@ -10,12 +11,9 @@ Redmine::Plugin.register :schedular do
   url 'http://github.com/pochi/redmine_schedular'
   author_url 'http://github.com/pochi/'
 
+  settings :default => {}, :partial => 'settings/scheduler_settings'
+
   project_module :schedular do
-=begin
-    permission :view_schedulars, :schedulars => [:index, :show]
-    permission :manage_schedulars, :schedulars => [:new, :edit, :create],
-                                   :require => :member
-=end
     permission :scheduler, { :schedulers => [:index, :new, :edit, :show, :home]}, public: true
   end
 

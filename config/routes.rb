@@ -11,5 +11,5 @@ Rails.application.routes.draw do
     end
   end
 
-  resources :schedulers
+  match '/schedulers/settings', :to => 'schedulers#settings', :via => :post
 end
