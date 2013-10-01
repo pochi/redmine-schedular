@@ -390,7 +390,11 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
 
   $scope.dialogClose = function() {
     $scope.closeMsg = 'I was closed at: ' + new Date();
+    console.log("Dialog close start");
+    console.log($scope.newReservation);
     $scope.newReservation = false;
+    console.log($scope.newReservation);
+    console.log("Dialog close end");
     $scope.alertEventMessage = '';
   };
 
@@ -497,7 +501,7 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
     $scope.myCalendar.fullCalendar("removeEvents", 'event-' + e.event.id);
     $scope.licenses[e.event.schedule_id].events = replaceEvents;
     $scope.licenses[e.event.schedule_id].events.push(event);
-    $scope.newReservation = false;
+    $scope.dialogClose();
     $scope.notificationMessageContent = "予定を削除しました";
     $scope.notificationMessage = true;
   };
