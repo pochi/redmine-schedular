@@ -3,7 +3,7 @@
     // POST先を切り替え
     $("form#plugin").attr("action", "/schedulers/settings");
 
-    var _id = 1;
+    var _id = <%= SchedulerCustomListContent.count %>;
     var new_form = function(content_id){
       var form_string = "<input id='scheduler_custom_list_content" + content_id +
                         "' name='scheduler_custom_list_content" + content_id +
@@ -18,29 +18,6 @@
   });
 </script>
 
-<h3>バージョン</h3>
-
-<%= SchedulerPlugin::VERSION %>
-
-<h3 style="margin-top: 10px">予約期間</h3>
-
-<% @scheduler_setting = SchedulerSetting.first_or_initialize %>
-<p style="padding-left: 0px">一回あたりの最大予約期間を設定します</p>
-
-<%= text_field :scheduler_setting, :period, :size => 10 %>日間
-
-<h3 style="margin-top: 10px">グループリスト</h3>
-
-<% @scheduler_custom_list = SchedulerCustomList.first_or_initialize %>
-<p style="padding-left: 0px">グループリストの追加/削除を行います</p>
-
-表示名: <%= text_field :scheduler_custom_list, :title, :size => 20 %>
-
-<br/>
-表示リスト<a id="new_content">(リスト追加)</a>
-
-<div class="content_lists">
-  <% @scheduler_custom_list.scheduler_custom_list_contents.each do |content| %>
-    <%= content.name %>
-  <% end %>
-</div>
+<%= render :partial => "settings/version" %>
+<%= render :partial => "settings/period" %>
+<%= render :partial => "settings/group_list" %>
