@@ -47,28 +47,6 @@ class SchedulersController < ApplicationController
     end
   end
 
-  def settings
-    @plugin = Redmine::Plugin.find(:schedular)
-
-    current_scheduler_setting = SchedulerSetting.first_or_initialize
-    if params[:scheduler_setting][:period].to_i < 100
-      current_scheduler_setting.period = params[:scheduler_setting][:period]
-    end
-    current_scheduler_setting.save
-
-    current_custom_list = SchedulerCustomList.current
-    current_custom_list.scheduler_setting = SchedulerSetting.first
-    current_custom_list.title = params[:scheduler_custom_list][:title]
-    current_custom_list.save
-
-
-    params.select { |p| p.include?("scheduler_custom_list_content") }.each do |_, p|
-      SchedulerCustomList.current.scheduler_custom_list_contents.create(p)
-    end
-
-    flash[:notice] = l(:notice_successful_update)
-    redirect_to plugin_settings_path(@plugin)
-  end
 end
 
 ApplicationController.class_eval do
