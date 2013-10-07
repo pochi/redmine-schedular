@@ -37,8 +37,8 @@
           </div>
         </ul>
         <div id="teams" data-articles="<%= teams %>"></div>
-        <kuromodal></kuromodal>
-        <div modal="kuroMessage" notification_modal></div>
+
+        <div modal="notificationMessage" notification_modal></div>
 
       </div>
       <div class='span10' style='margin-top: 10px;'>
@@ -47,15 +47,6 @@
         </div>
 
         <div ui-calendar='uiConfig.calendar' ng-model='eventSources' config='uiConfig.calendar' calendar='myCalendar'></div>
-
-        <div modal="notificationMessage" close="notificationClose()">
-          <div class="modal-header">
-            <h5>{{notificationMessageContent}}</h5>
-          </div>
-          <div class="modal-footer">
-            <button class="btn" ng-click="notificationClose()">OK</button>
-          </div>
-        </div>
 
         <div modal="newReservation" close="dialogClose()" options="opts">
           <div class="modal-header">

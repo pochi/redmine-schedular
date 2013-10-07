@@ -85,13 +85,27 @@ calendarApp.directive("notificationModal", function() {
   return {
     restrict: 'A',
     link: function(scope, element, attr) {
-      scope.kuroNotificationClose = function() {
-        scope.kuroMessage = false;
+      scope.notificationMessage = false;
+
+      scope.notificationClose = function() {
+        scope.notificationMessage = false;
       };
-      scope.kuroMessage = true;
-      scope.notificationMessageContent = "directive testing";
+
+      scope.notificationErrorMessage = function(){
+        scope.notificationMessage = true;
+        scope.notificationMessageContent = "ライセンス数の上限により、保存できませんでした";
+      };
+
+      scope.notificationClose = function() {
+        scope.notificationMessage = false;
+      };
+
+      scope.notificationDeleteMessage = function() {
+        scope.notificationMessageContent = "予定を削除しました";
+        scope.notificationMessage = true;
+      };
     },
-    template: "<div class='modal-header'><h3>{{notificationMessageContent}}</h3></div><div class='modal-footer'><button class='btn' ng-click='kuroNotificationClose()'>OK</div>"
+    template: "<div class='modal-header'><h3>{{notificationMessageContent}}</h3></div><div class='modal-footer'><button class='btn' ng-click='notificationClose()'>OK</div>"
   };
 });
 
@@ -114,7 +128,6 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
   };
   $scope.loaded = {
   };
-  $scope.notificationMessage = false;
   // Global変数。初回読み込みサーバとはIDのみでやり取りする
   $scope.teams = $("#teams").data("articles");
 
@@ -193,8 +206,7 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
         $scope.licenses[e.event.schedule_id].events.push(event);
         $scope.newReservation = false;
       }, function error(response) {
-        $scope.notificationMessage = true;
-        $scope.notificationMessageContent = "ライセンス数の上限により、保存できませんでした";
+        $scope.notificationErrorMessage();
         revert();
         console.log(response);
       });
@@ -240,8 +252,7 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
         $scope.licenses[e.event.schedule_id].events.push(event);
         $scope.newReservation = false;
       }, function error(response) {
-        $scope.notificationMessage = true;
-        $scope.notificationMessageContent = "ライセンス数の上限により、保存できませんでした";
+        $scope.notificationErrorMessage();
         revert();
         console.log(response);
       });
@@ -422,10 +433,6 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
     $scope.alertEventMessage = '';
   };
 
-  $scope.notificationClose = function() {
-    $scope.notificationMessage = false;
-  };
-
 
   $scope.bgstyle = function(color) {
     return {backgroundColor: color};
@@ -530,8 +537,7 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
     $scope.licenses[e.event.schedule_id].events = replaceEvents;
     $scope.licenses[e.event.schedule_id].events.push(e.event);
     $scope.dialogClose();
-    $scope.notificationMessageContent = "予定を削除しました";
-    $scope.notificationMessage = true;
+    $scope.notificationDeleteMessage();
   };
 
   $scope.afterUpdate = function(e, beforeEventId) {
