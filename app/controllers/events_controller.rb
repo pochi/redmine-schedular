@@ -8,6 +8,7 @@ class EventsController < ApplicationController
       e.end_date = params[:end_date]
       e.content = params[:content]
       e.user_id = current_user.id
+      e.team_id = params[:team_id]
     end
     if event.save
       render :json => event
@@ -25,6 +26,7 @@ class EventsController < ApplicationController
         e.end_date = params[:end_date] || event.end_date
         e.content = params[:content] || event.content
         e.user_id = current_user.id
+        e.team_id = params[:team_id]
       end
       recreate_event.save!
       render :json => recreate_event

@@ -8,6 +8,8 @@ class Event < ActiveRecord::Base
   before_save :check_license, :update_count
   before_destroy :destroy_license_count
 
+  belongs_to :scheduler_custom_list_content, :foreign_key => :team_id
+
   private
   def update_count
     self.start_date.upto(self.end_date) do |date|

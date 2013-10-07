@@ -36,11 +36,13 @@
             <div class='license_title ng-class:license.visiable' style='margin-left: 2px; display: inline-block'>{{ license.title }}</div>
           </div>
         </ul>
+        <div id="teams" data-articles="<%= teams %>"></div>
       </div>
       <div class='span10' style='margin-top: 10px;'>
         <div class="alert-success calAlert" ng-show="alertMessage = ''">
           <h4>{{alertMessage}}</h4>
         </div>
+
         <div ui-calendar='uiConfig.calendar' ng-model='eventSources' config='uiConfig.calendar' calendar='myCalendar'></div>
 
         <div modal="notificationMessage" close="notificationClose()">
@@ -139,9 +141,7 @@
                       ng-init="newEvent.license = license"
                       name="event[license]"
                       required>
-                <%= @schedules.each_with_index do |schedule, index|%>
-                <option value="<%= schedule.id %>"><%= schedule.title%></option>
-                <% end %>
+                <%= license_options(@schedules) %>
               </select>
               <br>
               <span class="error" ng-show="!newEvent.license">ライセンスは必須項目です</span>

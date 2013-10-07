@@ -70,6 +70,7 @@ calendarApp.value('eventHelper', {
   }
 });
 
+
 calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Event, Events, LicenseParticipation, modalOpts, eventHelper) {
   var date = new Date();
   var d = date.getDate();
@@ -88,6 +89,9 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
   $scope.loaded = {
   };
   $scope.notificationMessage = false;
+  // Global変数。初回読み込みサーバとはIDのみでやり取りする
+  $scope.teams = $("#teams").data("articles");
+
 
   $scope.eventsF = function(start, end, callback) {
     var s = new Date(start).getTime() / 1000;
@@ -139,12 +143,14 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
       } else {
         resource.end_date  = resource.start_date;
       }
+      resource.team = event.team;
 
       resource.$update(function(e,_) {
         var event = {title: e.event.content,
                      _id: 'event-' + e.event.id,
                      start: e.event.start_date,
                      end: e.event.end_date,
+                     team: e.event.team_id,
                      backgroundColor: $scope.licenses[e.event.schedule_id].color,
                      className: 'custom-license-event-' + e.event.schedule_id,
                      borderColor: 'white'
@@ -252,10 +258,11 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
                                                        visiable: visiableClass };
 
           angular.forEach(events_per_license['events'], function(e) {
-            var event = {title: e.event.content,
+            var event = {title: $scope.teams[e.event.team_id] + "-" + e.event.content,
                          _id: 'event-' + e.event.id,
                          start: e.event.start_date,
                          end: e.event.end_date,
+                         team: e.event.team_id,
                          className: 'custom-license-event-' + events_per_license.id,
                          backgroundColor: $scope.licenses[events_per_license.id].color,
                          borderColor: 'white'
@@ -270,10 +277,6 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
       });
       $scope.loaded[currentYear+currentMonth] = true;
     }
-    console.log("view");
-    console.log(view);
-    console.log(view.start);
-    console.log("view");
   };
 
   // http://iw3.me/156/
@@ -325,7 +328,6 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
   };
 
   $scope.modalOpts = modalOpts;
-
 
   $scope.activate_calendar = function(name) {
     alert("pochi");
@@ -439,6 +441,7 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
     resource.start_date = event.startYear + "-" + event.startMonth + "-" + event.startDate;
     resource.end_date = event.endYear + "-" + event.endMonth + "-" + event.endDate;
     resource.content = event.content;
+    resource.team_id = event.team;
     return resource;
   };
 
@@ -452,6 +455,8 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
     $scope.eventId = eventHelper.getEventId(event._id);
     $scope.setEventDate(event);
     $scope.title = event.title;
+    $scope.team = event.team;
+    console.log(event);
 
     var customEventArray = event.className[0].split('-');
     $scope.license = customEventArray[customEventArray.length-1];
@@ -478,6 +483,7 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
                  _id: 'event-' + e.event.id,
                  start: e.event.start_date,
                  end: e.event.end_date,
+                 team: e.event.team_id,
                  backgroundColor: $scope.licenses[e.event.schedule_id].color,
                  className: 'custom-license-event-' + e.event.schedule_id,
                  borderColor: 'white'
