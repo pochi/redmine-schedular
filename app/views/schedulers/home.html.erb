@@ -21,6 +21,15 @@
   </head>
 
   <body ng-controller='CalendarCtrl'>
+    <script type="text/ng-template" id="notification.html">
+      <div class='modal-header'>
+        <h3>{{notificationMessageContent}}</h3>
+      </div>
+      <div class='modal-footer'><button class='btn' ng-click='notificationClose()'>
+        OK
+      </div>
+    </script>
+
     <div class='row-fluid'>
       <div class='span2'>
         <h4 class='header' style='height: 42px; padding: 5px; margin-left: 10px; color: gray;'>

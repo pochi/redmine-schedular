@@ -70,16 +70,6 @@ calendarApp.value('eventHelper', {
   }
 });
 
-calendarApp.directive("kuromodal", function() {
-  return {
-    restrict: 'ECMA',
-    link: function(scope, element, attr) {
-      console.log(scope);
-      scope.newFormModal = true;
-    },
-    template: "<div>kuroda</div>"
-  };
-});
 
 calendarApp.directive("notificationModal", function() {
   return {
@@ -105,7 +95,7 @@ calendarApp.directive("notificationModal", function() {
         scope.notificationMessage = true;
       };
     },
-    template: "<div class='modal-header'><h3>{{notificationMessageContent}}</h3></div><div class='modal-footer'><button class='btn' ng-click='notificationClose()'>OK</div>"
+    templateUrl: "notification.html"
   };
 });
 
