@@ -7,7 +7,7 @@ Redmine::Plugin.register :schedular do
   name 'Schedular plugin'
   author 'pochi_black'
   description 'This is a plugin for Redmine like Google calendar'
-  version '0.0.1'
+  version SchedulerPlugin::VERSION
   url 'http://github.com/pochi/redmine_schedular'
   author_url 'http://github.com/pochi/'
 
