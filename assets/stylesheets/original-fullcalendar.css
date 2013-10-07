@@ -581,6 +581,10 @@ table.fc-border-separate {
   width: 200px;
 }
 
+.team {
+  width: 200px;
+}
+
 .error {
   color: red;
 }

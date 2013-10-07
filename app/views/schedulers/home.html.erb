@@ -122,13 +122,13 @@
               <span class="error" ng-show="!newEvent.user">申請者は必須項目です</span>
               <br>
             チーム名<br>
-              <input id="event_team"
-                     name="event[team]"
-                     ng-model="newEvent.team"
-                     ng-init="newEvent.team = team"
-                     size="30"
-                     type="text"
-                     required>
+              <select class="team"
+                      name="event[team]"
+                      ng-model="newEvent.team"
+                      ng-init="newEvent.team = team"
+                      required>
+                <%= team_options %>
+              </select>
               <br>
               <span class="error" ng-show="!newEvent.team">チーム名は必須項目です</span>
               <br>
