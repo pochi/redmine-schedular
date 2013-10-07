@@ -23,3 +23,54 @@
                :as => :content %>
   </tbody>
 </table>
+
+<script type="text/javascript">
+  $("a.scheduler_custom_list_content_edit").live("click", function(event) {
+    var _input_elements = $(this).parents("tr").find("td").not(".buttons");
+    _input_elements.each(function() {
+      var val = $(this).html();
+      //$(this).html("<td><input type='text' size=30></td>");
+      $(this).html("<input type='text' size=30>");
+      $(this).find("input").val(val);
+    });
+
+    $(this).removeClass("scheduler_custom_list_content_edit").
+            addClass("scheduler_custom_list_content_save").
+            html("保存");
+    return false;
+  });
+
+  $("a.scheduler_custom_list_content_save").live("click", function(event) {
+    var _name = $($(this).parents("tr").find("input")[0]).val();
+    var csrf_token = $("meta[name=csrf-token]").attr("content");
+    var put_data = "name=" + _name;
+    var url = $(this).attr("href");
+    var _self = this;
+
+    $.ajax({
+      type: 'PUT',
+      url: url,
+      headers: {
+        "X-CSRF-TOKEN": csrf_token
+      },
+      data: put_data,
+      dataType: 'json',
+      success: function(d) {
+        console.log("saved");
+        var _input_elements = $(_self).parents("tr").find("td").not(".buttons");
+        _input_elements.each(function() {
+          var val = $(this).find("input").val();
+          $(this).html(val);
+        });
+        $(_self).removeClass("scheduler_custom_list_content_save").
+                 addClass("scheduler_custom_list_content_edit").
+                 html("編集");
+      },
+      error: function(xhr, status, error) {
+        console.log(status);
+      }
+    });
+    return false;
+  });
+
+</script>

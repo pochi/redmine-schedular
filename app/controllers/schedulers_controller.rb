@@ -25,7 +25,9 @@ class SchedulersController < ApplicationController
   def create
     @schedule = Schedule.new(params[:schedule])
     if @schedule.save
-      render :template => "schedulers/create.js.erb"
+      render :template => "schedulers/create",
+             :handlers => [:erb],
+             :formats => [:js]
     end
   end
 
@@ -39,7 +41,9 @@ class SchedulersController < ApplicationController
   def destroy
     @schedule = current_project.schedules.find(params[:id])
     if @schedule.destroy
-      render :template => "schedulers/destroy.js.erb"
+      render :template => "schedulers/destroy",
+             :handlers => [:erb],
+             :formats => [:js]
     end
   end
 

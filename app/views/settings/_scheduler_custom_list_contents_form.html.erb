@@ -4,11 +4,11 @@
                       :action => 'create' },
              :remote => true do |form| %>
   <%= form.text_field :name, title: '表示名' %>
-  <%= form.submit '追加', :class => "scheduler_custom_submit", :id => "scheduler_custom_list_contents" %>
+  <%= form.submit '追加', :class => "scheduler_custom_submit", :id => "new_scheduler_custom_list_contents" %>
 <% end %>
 
 <script type="text/javascript">
-  $("#scheduler_custom_list_contents").live("click", function(event){
+  $("#new_scheduler_custom_list_contents").live("click", function(event){
     var _target_form = $($(this).parents("form")[0]);
     var _input_text = _target_form.find("#scheduler_custom_list_content_name").val();
     var csrf_token = $("meta[name=csrf-token]").attr("content");
@@ -28,6 +28,7 @@
         //              This form is generated Redmine original form. so, override url if own form write.
         //              I write catch click event and override form, so response and rewrite needs own self instead of rails function.
         eval(d);
+        $("input#scheduler_custom_list_content_name").val("");
       },
       error: function(xhr, status, error) {
         console.log(status);
