@@ -4,16 +4,18 @@ class Schedule < ActiveRecord::Base
   belongs_to :project
   before_save :set_color
   validates_uniqueness_of :title, :scope => :project_id
+  validates_presence_of :title
+  validates_presence_of :license
   has_many :events, :dependent => :destroy
   has_many :license_counts, :dependent => :destroy
   has_many :license_participations, :dependent => :destroy
 
   COLORS = [
-    'rgb(179, 220, 108)',
-    'rgb(246, 145, 178)',
-    'rgb(73, 134, 231)',
-    'rgb(250, 87, 60)',
-    'rgb(123, 209, 72)'
+    '#b3dc6c',
+    '#f691b2',
+    '#4986e7',
+    '#fa573c',
+    '#7bd148'
   ].freeze
 
   def to_hash_with_events(date)

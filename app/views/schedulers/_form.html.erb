@@ -6,6 +6,19 @@
                      :remote => true do |form| %>
   <%= form.text_field :title %>
   <%= form.text_field :license, title: 'ライセンス数' %>
+  <%= form.text_field :color, title: 'Color', :class => "color_picker" %>
   <%= form.hidden_field :project_id, value: project.id %>
   <%= form.submit '作成' %>
 <% end %>
+
+<script type="text/javascript">
+  $(".color_picker").colpick({
+    layout: "hex",
+    onChange: function(hsb, hex, rgb, fromSetColor) {
+      $(".color_picker").val("#"+hex);
+    },
+    onSubmit: function(col, hex, rgb, el) {
+      $(".color_picker").colpickHide();
+    }
+  });
+</script>

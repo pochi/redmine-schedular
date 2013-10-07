@@ -1,3 +1,6 @@
+<%= javascript_include_tag 'colpick-color-picker/js/colpick.js', :plugin => 'schedular' %>
+<%= stylesheet_link_tag 'colpick-color-picker/colpick.css', :plugin => 'schedular' %>
+
 
 <div id="schedulars_settings">
   <%= render :partial => "schedulers/form", :locals => {:project => @project} %>
