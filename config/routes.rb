@@ -13,4 +13,5 @@ Rails.application.routes.draw do
 
   match '/schedulers/settings', :to => 'schedulers#settings', :via => :post
   resources :scheduler_custom_list_contents
+  resources :scheduler_settings
 end

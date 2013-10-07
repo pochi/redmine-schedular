@@ -1,0 +1,12 @@
+<h3 style="margin-top: 10px; border-bottom: 1px solid silver">予約期間</h3>
+
+<% @scheduler_setting = SchedulerSetting.first_or_initialize %>
+<p style="padding-left: 0px">一回あたりの最大予約期間を設定します</p>
+
+<%= form_for @scheduler_setting,
+             :url => {:controller => 'scheduler_settings',
+                      :action => 'update' },
+             :remote => true do |form| %>
+  <%= form.text_field :period, title: '表示名', :size => 10 %> 日間
+  <%= form.submit '適用', :class => "scheduler_custom_submit" %>
+<% end %>

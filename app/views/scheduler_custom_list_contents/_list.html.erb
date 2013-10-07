@@ -1,0 +1,12 @@
+<tr class="version open <%= cycle('odd','even') %>" id="<%= content.id %>">
+  <td><%= content.name %></td>
+  <td class="buttons">
+    <%= link_to "編集", scheduler_custom_list_contents_path(content),
+                       :class => "icon icon-edit schedule_edit" %>
+    <%= link_to "削除", scheduler_custom_list_contents_path(content),
+                       :remote => true, :method => :delete,
+                       :class => "icon icon-del schedule",
+                       :confirm => "よろしいですか？" %>
+
+  </td>
+</tr>

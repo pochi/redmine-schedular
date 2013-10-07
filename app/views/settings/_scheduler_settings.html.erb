@@ -1,20 +1,7 @@
 <script type="text/javascript">
+
   $(function(){
-    // POST先を切り替え
-    $("form#plugin").attr("action", "/schedulers/settings");
-
-    var _id = <%= SchedulerCustomListContent.count %>;
-    var new_form = function(content_id){
-      var form_string = "<input id='scheduler_custom_list_content" + content_id +
-                        "' name='scheduler_custom_list_content" + content_id +
-                        "[name]' type='text'><br/>";
-      return form_string;
-    };
-
-    $("#new_content").on("click", function() {
-      $(".content_lists").append(new_form(_id));
-      _id = _id + 1;
-    });
+    $(":submit").not(".scheduler_custom_submit").remove();
   });
 </script>
 

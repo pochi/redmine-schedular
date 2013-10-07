@@ -1,0 +1,25 @@
+<h3 style="margin-top: 10px; border-bottom: 1px solid silver">グループリスト</h3>
+
+<p style="padding-left: 0px">グループリストの追加/削除を行います</p>
+
+<h4>表示名</h4>
+<% @scheduler_custom_list = SchedulerCustomList.first_or_initialize %>
+<%= @scheduler_custom_list.title %>
+
+<h4 style="margin-top: 5px">表示リスト</h4>
+
+<%= render :partial => "settings/scheduler_custom_list_contents_form"%>
+
+<table class="list versions" style="margin-top: 20px">
+  <thead>
+    <tr>
+      <th>リスト名</th>
+      <th style="width: 15%"></th>
+    </tr>
+  </thead>
+  <tbody id="scheduler_custom_list_contents">
+    <%= render :partial => "scheduler_custom_list_contents/list",
+               :collection => @scheduler_custom_list.scheduler_custom_list_contents,
+               :as => :content %>
+  </tbody>
+</table>
