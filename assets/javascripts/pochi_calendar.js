@@ -70,6 +70,32 @@ calendarApp.value('eventHelper', {
   }
 });
 
+calendarApp.directive("kuromodal", function() {
+  return {
+    restrict: 'ECMA',
+    link: function(scope, element, attr) {
+      console.log(scope);
+      scope.newFormModal = true;
+    },
+    template: "<div>kuroda</div>"
+  };
+});
+
+calendarApp.directive("notificationModal", function() {
+  return {
+    restrict: 'A',
+    link: function(scope, element, attr) {
+      scope.kuroNotificationClose = function() {
+        scope.kuroMessage = false;
+      };
+      scope.kuroMessage = true;
+      scope.notificationMessageContent = "directive testing";
+    },
+    template: "<div class='modal-header'><h3>{{notificationMessageContent}}</h3></div><div class='modal-footer'><button class='btn' ng-click='kuroNotificationClose()'>OK</div>"
+  };
+});
+
+
 
 calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Event, Events, LicenseParticipation, modalOpts, eventHelper) {
   var date = new Date();
