@@ -30,6 +30,6 @@ class Schedule < ActiveRecord::Base
 
   private
   def set_color
-    self.color ||= COLORS[self.class.count % 5]
+    self.color = COLORS[self.class.count % 5] if self.color.empty?
   end
 end
