@@ -601,3 +601,25 @@ table.fc-border-separate {
   text-decoration: line-through;
   color: gray;
 }
+
+.license_list_title {
+  margin-left: 15px;
+  border-bottom: 1px solid silver;
+  color: gray;
+}
+
+.license_list {
+  cursor: pointer;
+  padding-bottom: 3px;
+}
+
+.color_box {
+  width: 16px;
+  height:16px;
+  display: inline-block;
+}
+
+.license_title {
+  margin-left: 2px;
+  display: inline-block
+}
