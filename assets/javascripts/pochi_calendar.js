@@ -86,23 +86,72 @@ calendarApp.directive("notificationModal", function() {
         scope.notificationMessageContent = "ライセンス数の上限により、保存できませんでした";
       };
 
+      scope.showNotification = function(message) {
+        scope.notificationMessage = true;
+        scope.notificationMessageContent = message;
+      };
+
       scope.notificationClose = function() {
         scope.notificationMessage = false;
       };
 
       scope.notificationDeleteMessage = function() {
-        scope.notificationMessageContent = "予定を削除しました";
         scope.notificationMessage = true;
+        scope.notificationMessageContent = "予定を削除しました";
       };
     },
     templateUrl: "notification.html"
   };
 });
 
-calendarApp.directive("licenseList", function() {
+calendarApp.directive("licenseList", function(LicenseParticipation) {
   return {
     restrict: 'A',
     link: function(scope, element, attr) {
+      scope.hiddenLicense = function(license, element) {
+        license.$save(function(e, _) {
+          var removeIds = [];
+          var events = scope.licenses[element.license.id].events;
+          for(var i=0;i<events.length;i++)
+            removeIds.push(events[i]._id);
+
+          var filter = function(event) {
+            for(var i=0; i<removeIds.length; i++) {
+              if(removeIds[i] ===  event._id)
+                return true;
+            }
+            return false;
+          };
+          scope.myCalendar.fullCalendar('removeEvents', filter);
+          element.license.visiable = 'hidden-decorator';
+        }, function error(response) {
+          scope.showNotification("リクエストが失敗しました");
+        });
+      };
+
+      scope.showLicense = function(license, element) {
+        license.$delete(function(e, _) {
+          scope.myCalendar.fullCalendar('addEventSource', element.license.events);
+          element.license.visiable = 'active';
+        }, function error(response) {
+          scope.showNotification("リクエストが失敗しました");
+        });
+      };
+
+      scope.switchLicense = function() {
+        var licenseParticipation = new LicenseParticipation();
+        licenseParticipation.project_id = scope.project_id;
+        console.log(this);
+        licenseParticipation.schedule_id = this.license.id;
+        var self = this;
+
+        // POST Request
+        if (this.license.visiable === 'active') {
+          scope.hiddenLicense(licenseParticipation, self);
+        } else {
+          scope.showLicense(licenseParticipation, self);
+        }
+      };
       scope.bgstyle = function(color) {
         return {backgroundColor: color};
       };
@@ -393,49 +442,11 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
     $scope.endDate = null;
   };
 
-  $scope.switchLicense = function() {
-    var licenseParticipation = new LicenseParticipation();
-    licenseParticipation.project_id = $scope.project_id;
-    licenseParticipation.schedule_id = this.license.id;
-    var self = this;
-    // POST Request
-    if (this.license.visiable === 'active') {
-      licenseParticipation.$save(function(e, _) {
-        var removeIds = [];
-        var events = $scope.licenses[self.license.id].events;
-        for(var i=0;i<events.length;i++) {
-          console.log(events[i]);
-          removeIds.push(events[i]._id);
-        }
-        var filter = function(event) {
-          for(var i=0; i<removeIds.length; i++) {
-            if(removeIds[i] ===  event._id)
-              return true;
-          }
-          return false;
-        };
-        $scope.myCalendar.fullCalendar('removeEvents', filter);
-        self.license.visiable = 'hidden-decorator';
-      }, function error(response) {
-        $scope.alertEventMessage = 'Fail on update user license visiable request';
-      });
-    } else {
-      licenseParticipation.$delete(function(e, _) {
-        $scope.myCalendar.fullCalendar('addEventSource', self.license.events);
-        self.license.visiable = 'active';
-      }, function error(response) {
-        $scope.alertEventMessage = 'Fail on update user license visiable request';
-      });
-    }
-  };
-
   $scope.dialogClose = function() {
     $scope.closeMsg = 'I was closed at: ' + new Date();
     $scope.newReservation = false;
     $scope.alertEventMessage = '';
   };
-
-
 
   $scope.deleteEvent = function() {
     var resource = $scope.replaceEventModelFrom(this);
