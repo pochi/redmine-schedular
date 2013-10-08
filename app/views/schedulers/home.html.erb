@@ -51,10 +51,6 @@
 
       </div>
       <div class='span10' style='margin-top: 10px;'>
-        <div class="alert-success calAlert" ng-show="alertMessage = ''">
-          <h4>{{alertMessage}}</h4>
-        </div>
-
         <div ui-calendar='uiConfig.calendar' ng-model='eventSources' config='uiConfig.calendar' calendar='myCalendar'></div>
 
         <div modal="newReservation" close="dialogClose()" options="opts">
