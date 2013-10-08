@@ -109,7 +109,7 @@ calendarApp.directive("licenseList", function(LicenseParticipation) {
     restrict: 'A',
     link: function(scope, element, attr) {
       scope.hiddenLicense = function(license, element) {
-        license.$save(function(e, _) {
+        var hidden = function(e, _) {
           var removeIds = [];
           var events = scope.licenses[element.license.id].events;
           for(var i=0;i<events.length;i++)
@@ -124,18 +124,28 @@ calendarApp.directive("licenseList", function(LicenseParticipation) {
           };
           scope.myCalendar.fullCalendar('removeEvents', filter);
           element.license.visiable = 'hidden-decorator';
-        }, function error(response) {
+        };
+
+        var error = function(response) {
+          console.log(response);
           scope.showNotification("リクエストが失敗しました");
-        });
+        };
+
+        license.$save(hidden, error);
       };
 
       scope.showLicense = function(license, element) {
-        license.$delete(function(e, _) {
+        var show = function(e, _) {
           scope.myCalendar.fullCalendar('addEventSource', element.license.events);
           element.license.visiable = 'active';
-        }, function error(response) {
+        };
+
+        var error = function(response) {
+          console.log(response);
           scope.showNotification("リクエストが失敗しました");
-        });
+        };
+
+        license.$delete(show,  error);
       };
 
       scope.switchLicense = function() {
@@ -152,6 +162,7 @@ calendarApp.directive("licenseList", function(LicenseParticipation) {
           scope.showLicense(licenseParticipation, self);
         }
       };
+
       scope.bgstyle = function(color) {
         return {backgroundColor: color};
       };
