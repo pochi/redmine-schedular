@@ -99,6 +99,18 @@ calendarApp.directive("notificationModal", function() {
   };
 });
 
+calendarApp.directive("licenseList", function() {
+  return {
+    restrict: 'A',
+    link: function(scope, element, attr) {
+      scope.bgstyle = function(color) {
+        return {backgroundColor: color};
+      };
+    },
+    templateUrl: "license_list.html"
+  };
+});
+
 
 
 calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Event, Events, LicenseParticipation, modalOpts, eventHelper) {
@@ -424,9 +436,6 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
   };
 
 
-  $scope.bgstyle = function(color) {
-    return {backgroundColor: color};
-  };
 
   $scope.deleteEvent = function() {
     var resource = $scope.replaceEventModelFrom(this);

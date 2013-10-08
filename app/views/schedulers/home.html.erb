@@ -30,14 +30,7 @@
       </div>
     </script>
 
-    <div class='row-fluid'>
-      <div class='span2'>
-        <h4 class='header' style='height: 42px; padding: 5px; margin-left: 10px; color: gray;'>
-          リソース予約
-        </h4>
-        <a class="btn btn-danger btn-mini btn-large" style="width: 79px; height: 29px; margin-left: 15px; margin-top: -10px;" ng-click='dialogOpen()'>
-          <div class='button-text' style='margin-top: 5px; font-size: 14px;'>作成</div>
-        </a>
+    <script type="text/ng-template" id="license_list.html">
         <h5 style='margin-left: 15px; border-bottom: 1px solid silver; color: gray;'>ライセンスリスト</h5>
         <ul>
           <div ng-repeat='license in licenses' style='cursor: pointer; padding-bottom: 3px;' id='licence_{{ license.id }}' ng-click='switchLicense()'>
@@ -45,8 +38,15 @@
             <div class='license_title ng-class:license.visiable' style='margin-left: 2px; display: inline-block'>{{ license.title }}</div>
           </div>
         </ul>
-        <div id="teams" data-articles="<%= teams %>"></div>
+    </script>
 
+    <div class='row-fluid'>
+      <div class='span2'>
+        <h4 class='header' style='height: 42px; padding: 5px; margin-left: 10px; color: gray;'>
+          リソース予約
+        </h4>
+        <div license_list></div>
+        <div id="teams" data-articles="<%= teams %>"></div>
         <div modal="notificationMessage" notification_modal></div>
 
       </div>
