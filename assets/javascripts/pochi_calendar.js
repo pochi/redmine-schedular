@@ -70,7 +70,6 @@ calendarApp.value('eventHelper', {
   }
 });
 
-
 calendarApp.directive("notificationModal", function() {
   return {
     restrict: 'A',
@@ -145,13 +144,12 @@ calendarApp.directive("licenseList", function(LicenseParticipation) {
           scope.showNotification("リクエストが失敗しました");
         };
 
-        license.$delete(show,  error);
+        license.$delete(show, error);
       };
 
       scope.switchLicense = function() {
         var licenseParticipation = new LicenseParticipation();
         licenseParticipation.project_id = scope.project_id;
-        console.log(this);
         licenseParticipation.schedule_id = this.license.id;
         var self = this;
 
