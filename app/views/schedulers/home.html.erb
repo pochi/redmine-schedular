@@ -40,6 +40,9 @@
         </ul>
     </script>
 
+    <script type="text/ng-template" id="event_form.html">
+    </script>
+
     <div class='row-fluid'>
       <div class='span2'>
         <h4 class='header' style='height: 42px; padding: 5px; margin-left: 10px; color: gray;'>
@@ -53,6 +56,7 @@
       <div class='span10' style='margin-top: 10px;'>
         <div ui-calendar='uiConfig.calendar' ng-model='eventSources' config='uiConfig.calendar' calendar='myCalendar'></div>
 
+        <div modal="event_form" event_form_modal></div>
         <div modal="newReservation" close="dialogClose()" options="opts">
           <div class="modal-header">
             <h3>{{ modalOpts.title }}</h3>

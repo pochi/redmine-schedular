@@ -80,11 +80,6 @@ calendarApp.directive("notificationModal", function() {
         scope.notificationMessage = false;
       };
 
-      scope.notificationErrorMessage = function(){
-        scope.notificationMessage = true;
-        scope.notificationMessageContent = "ライセンス数の上限により、保存できませんでした";
-      };
-
       scope.showNotification = function(message) {
         scope.notificationMessage = true;
         scope.notificationMessageContent = message;
@@ -93,13 +88,17 @@ calendarApp.directive("notificationModal", function() {
       scope.notificationClose = function() {
         scope.notificationMessage = false;
       };
-
-      scope.notificationDeleteMessage = function() {
-        scope.notificationMessage = true;
-        scope.notificationMessageContent = "予定を削除しました";
-      };
     },
-    templateUrl: "notification.html"
+    templateUrl: 'notification.html'
+  };
+});
+
+calendarApp.directive('eventFormModal', function(Event) {
+  return {
+    restrict: 'A',
+    link: function(scope, element, attr) {
+    },
+    templateUrl: 'event_form.html'
   };
 });
 
@@ -266,7 +265,7 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
         $scope.licenses[e.event.schedule_id].events.push(event);
         $scope.newReservation = false;
       }, function error(response) {
-        $scope.notificationErrorMessage();
+        $scope.showNotification('ライセンス数の上限により、保存できませんでした');
         revert();
         console.log(response);
       });
@@ -312,7 +311,7 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
         $scope.licenses[e.event.schedule_id].events.push(event);
         $scope.newReservation = false;
       }, function error(response) {
-        $scope.notificationErrorMessage();
+        $scope.showNotification('ライセンス数の上限により、保存できませんでした');
         revert();
         console.log(response);
       });
@@ -556,7 +555,7 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
     $scope.licenses[e.event.schedule_id].events = replaceEvents;
     $scope.licenses[e.event.schedule_id].events.push(e.event);
     $scope.dialogClose();
-    $scope.notificationDeleteMessage();
+    $scope.showNotification('予定を削除しました');
   };
 
   $scope.afterUpdate = function(e, beforeEventId) {
