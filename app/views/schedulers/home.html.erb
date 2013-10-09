@@ -55,37 +55,44 @@
               <tbody>
                 <tr>
                   <th class="form_left">日時:</th>
-                  <td>{{ formEvent.start_date }} ~ {{ formEvent.end_date }}</td>
+                  <td>{{ formEvent.start_date() }} ~ {{ formEvent.end_date() }}</td>
                 </tr>
                 <tr>
                   <th class="form_left">申請者:</th>
                   <td>
-                    <input ng-model="formEvent.user" ng-init="formEvent.user = '<%= User.current.name %>'" size="25" type="text" required>
+                    <input ng-model="formEvent.current.user"
+                           ng-init="formEvent.current.user = '<%= User.current.name %>'"
+                           size="25" type="text" required>
                   </td>
-                  <td class="error" ng-show="!formEvent.user">申請者は必須項目です</td>
+                  <td class="error" ng-show="!formEvent.current.user">申請者は必須項目です</td>
                 </tr>
                 <tr>
                   <th class="form_left">チーム名:</th>
                   <td>
-                    <select ng-model="formEvent.team" ng-init="formEvent.team = team" required>
+                    <select ng-model="formEvent.current.team_id"
+                            ng-init="formEvent.current.team_id = team_id" required>
                       <%= team_options %>
                     </select>
                   </td>
-                  <td class="error" ng-show="!formEvent.team">チーム名は必須です</td>
+                  <td class="error" ng-show="!formEvent.current.team_id">チーム名は必須です</td>
                 </tr>
                 <tr>
                   <th class="form_left">ライセンス:</th>
                   <td>
-                    <select class="license" ng-model="formEvent.license" ng-init="formEvent.license = license" name="event[license]" required>
+                    <select class="license"
+                            ng-model="formEvent.current.schedule_id"
+                            ng-init="formEvent.current.schedule_id = schedule_id" required>
                       <%= license_options(@schedules) %>
                     </select>
                   </td>
-                  <td class="error" ng-show="!formEvent.license">ライセンスは必須です</td>
+                  <td class="error" ng-show="!formEvent.current.schedule_id">ライセンスは必須です</td>
                 </tr>
                 <tr>
                   <th class="form_left">備考:</th>
                   <td>
-                    <input ng-model="formEvent.content" ng-init="formEvent.content = title" size="25" type="text">
+                    <input ng-model="formEvent.current.content"
+                           ng-init="formEvent.current.content = title"
+                           size="25" type="text">
                   </td>
                 </tr>
               <tbody>
@@ -95,7 +102,7 @@
       </div>
       <div class="modal-footer">
         <button class="btn" ng-click="closeEventForm()">キャンセル</button>
-        <button class="btn" ng-click="createEvent">{{ currentEvent.submitText }}</button>
+        <button class="btn" ng-click="createEvent()">{{ currentEvent.submitText }}</button>
       </div>
     </script>
 

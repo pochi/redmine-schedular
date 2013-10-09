@@ -35,7 +35,7 @@ eventService.factory('EventBB', function($resource) {
 
 
 eventService.factory("Event", function($resource) {
-  var serverModel = $resource('/projects/:project_id/schedulers/:schedule_id/events/:event_id', {
+  var Event = $resource('/projects/:project_id/schedulers/:schedule_id/events/:event_id', {
     project_id: '@project_id',
     schedule_id: '@schedule_id',
     event_id: '@event_id',
@@ -46,21 +46,81 @@ eventService.factory("Event", function($resource) {
     }
   });
 
-  var EventService = function() {
-    this.current = serverModel;
+  var EventService = function(start, end) {
+      this.initialize = function(project_id, start, end) {
+      this.current = new Event();
+      this.current.project_id = project_id;
+      this.setDate(start, end);
+    };
+
     this.setDate = function(start, end) {
       end = (end === null) ? start : end;
       this.start = start;
       this.end = end;
-      this.start_date = (start.getMonth() + 1) + " 月 " + start.getDate() + " 日";
-      this.end_date = (end.getMonth() + 1) + " 月 " + end.getDate() + " 日";
       this.current.start_date = start.getFullYear() + "-" + (start.getMonth() + 1) + "-" + start.getDate();
       this.current.end_date = end.getFullYear() + "-" + (end.getMonth() + 1) + "-" + end.getDate();
     };
+
+    this.start_date = function() {
+      return (this.start.getMonth() + 1) + " 月 " + this.start.getDate() + " 日";
+    };
+
+    this.end_date = function() {
+      return (this.end.getMonth() + 1) + " 月 " + this.end.getDate() + " 日";
+    };
+
+    this.create = function(success, error) {
+      this.current.$save(success, error);
+    };
+
+    this.initialize.apply(this, arguments);
   };
 
   return EventService;
 });
+
+calendarApp.directive('eventFormModal', function(Event) {
+  return {
+    restrict: 'A',
+    link: function(scope, element, attr) {
+      // TODO: Refactoring get project_id more smart.
+      var _split_url = location.href.split("/");
+      var project_id = _split_url[_split_url.length - 3];
+
+      scope.eventForm = false;
+      scope.currentEvent = {
+        title: '新規作成',
+        deleteable: false,
+        submitText: '作成'
+      };
+
+      scope.closeEventForm = function() {
+        scope.eventForm = false;
+      };
+
+      scope.showEventForm = function(start, end) {
+        scope.formEvent = new Event(project_id, start, end);
+        scope.eventForm = true;
+      };
+
+      scope.createEvent = function() {
+        var error = function(response) {
+          console.log(response);
+          scope.showNotification("ライセンス数の上限に引っかかっています");
+        };
+
+        var success = function(e, _) {
+          alert("pochi");
+        };
+
+        scope.formEvent.create(success, error);
+        scope.eventForm = false;
+      };
+    },
+    templateUrl: 'event_form.html'
+  };
+});
+
 
 
 var eventsService = angular.module('eventsService', ['ngResource']);
@@ -123,34 +183,6 @@ calendarApp.directive("notificationModal", function() {
   };
 });
 
-calendarApp.directive('eventFormModal', function(Event) {
-  return {
-    restrict: 'A',
-    link: function(scope, element, attr) {
-      scope.eventForm = false;
-      scope.currentEvent = {
-        title: '新規作成',
-        deleteable: false,
-        submitText: '作成'
-      };
-
-      scope.closeEventForm = function() {
-        scope.eventForm = false;
-      };
-
-      scope.showEventForm = function(start, end) {
-        scope.formEvent = new Event();
-        scope.formEvent.setDate(start, end);
-        scope.eventForm = true;
-      };
-
-      scope.createEvent = function() {
-        console.log(scope.formEvent);
-      };
-    },
-    templateUrl: 'event_form.html'
-  };
-});
 
 calendarApp.directive("licenseList", function(LicenseParticipation) {
   return {
@@ -516,36 +548,6 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
     });
   };
 
-  $scope.createEventA = function(newEvent) {
-    var resource = $scope.replaceEventModelFrom(newEvent);
-    if (!resource.event_id) {
-      resource.$save(function(e, _) {
-        $scope.afterCreate(e);
-      }, function error(response) {
-        $scope.alertEventMessage = 'ライセンス数の上限を超えています';
-      });
-    } else {
-      resource.$update(function(e,_) {
-        $scope.afterUpdate(e, newEvent.eventId);
-      }, function error(response) {
-        console.log(response);
-      });
-    }
-  };
-
-  // Event update of $scope.
-  // Follow methods are private methods.
-  $scope.replaceEventModelFrom = function(event) {
-    var resource = new Event();
-    resource.project_id = $scope.project_id;
-    resource.event_id = event.eventId;
-    resource.schedule_id = event.license;
-    resource.start_date = event.startYear + "-" + event.startMonth + "-" + event.startDate;
-    resource.end_date = event.endYear + "-" + event.endMonth + "-" + event.endDate;
-    resource.content = event.content;
-    resource.team_id = event.team;
-    return resource;
-  };
 
   $scope.updateModalOpts = function() {
     $scope.modalOpts.title = '更新';
