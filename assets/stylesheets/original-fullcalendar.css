@@ -623,3 +623,8 @@ table.fc-border-separate {
   margin-left: 2px;
   display: inline-block
 }
+
+.form_left {
+  text-align: left;
+  width: 100px;
+}

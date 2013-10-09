@@ -20,7 +20,7 @@ calendarApp.run(function($rootScope, $location) {
 });
 
 var eventService = angular.module('eventService', ['ngResource']);
-eventService.factory('Event', function($resource) {
+eventService.factory('EventBB', function($resource) {
   return $resource('/projects/:project_id/schedulers/:schedule_id/events/:event_id', {
     project_id: '@project_id',
     schedule_id: '@schedule_id',
@@ -32,6 +32,36 @@ eventService.factory('Event', function($resource) {
     }
   });
 });
+
+
+eventService.factory("Event", function($resource) {
+  var serverModel = $resource('/projects/:project_id/schedulers/:schedule_id/events/:event_id', {
+    project_id: '@project_id',
+    schedule_id: '@schedule_id',
+    event_id: '@event_id',
+    format: 'json'
+  }, {
+    update: {
+      method: 'PUT'
+    }
+  });
+
+  var EventService = function() {
+    this.current = serverModel;
+    this.setDate = function(start, end) {
+      end = (end === null) ? start : end;
+      this.start = start;
+      this.end = end;
+      this.start_date = (start.getMonth() + 1) + " 月 " + start.getDate() + " 日";
+      this.end_date = (end.getMonth() + 1) + " 月 " + end.getDate() + " 日";
+      this.current.start_date = start.getFullYear() + "-" + (start.getMonth() + 1) + "-" + start.getDate();
+      this.current.end_date = end.getFullYear() + "-" + (end.getMonth() + 1) + "-" + end.getDate();
+    };
+  };
+
+  return EventService;
+});
+
 
 var eventsService = angular.module('eventsService', ['ngResource']);
 eventsService.factory('Events', function($resource) {
@@ -76,7 +106,7 @@ calendarApp.directive("notificationModal", function() {
     link: function(scope, element, attr) {
       scope.notificationMessage = false;
 
-      scope.notificationClose = function() {
+      scope.closeNotification = function() {
         scope.notificationMessage = false;
       };
 
@@ -97,6 +127,26 @@ calendarApp.directive('eventFormModal', function(Event) {
   return {
     restrict: 'A',
     link: function(scope, element, attr) {
+      scope.eventForm = false;
+      scope.currentEvent = {
+        title: '新規作成',
+        deleteable: false,
+        submitText: '作成'
+      };
+
+      scope.closeEventForm = function() {
+        scope.eventForm = false;
+      };
+
+      scope.showEventForm = function(start, end) {
+        scope.formEvent = new Event();
+        scope.formEvent.setDate(start, end);
+        scope.eventForm = true;
+      };
+
+      scope.createEvent = function() {
+        console.log(scope.formEvent);
+      };
     },
     templateUrl: 'event_form.html'
   };
@@ -322,7 +372,8 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
     $scope.$apply(function() {
       $scope.initializeDialog();
       $scope.setEventDateFromStartAndEnd(start, end);
-      $scope.newReservation = true;
+      //$scope.newReservation = true;
+      $scope.showEventForm(start, end);
       $scope.myCalendar.fullCalendar("unselect");
     });
   };
@@ -465,7 +516,7 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
     });
   };
 
-  $scope.createEvent = function(newEvent) {
+  $scope.createEventA = function(newEvent) {
     var resource = $scope.replaceEventModelFrom(newEvent);
     if (!resource.event_id) {
       resource.$save(function(e, _) {
