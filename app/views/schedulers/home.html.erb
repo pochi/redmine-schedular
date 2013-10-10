@@ -33,7 +33,7 @@
     <script type="text/ng-template" id="license_list.html">
         <h5 class='license_list_title'>ライセンスリスト</h5>
         <ul>
-          <div ng-repeat='license in licenses' class='license_list' id='licence_{{ license.id }}' ng-click='switchLicense()'>
+          <div ng-repeat='license in licenses.current' class='license_list' id='licence_{{ license.id }}' ng-click='switchLicense()'>
             <div class='color_box' ng-style="bgstyle(license.color)"></div>
             <div class='license_title ng-class:license.visiable'>{{ license.title }}</div>
           </div>
