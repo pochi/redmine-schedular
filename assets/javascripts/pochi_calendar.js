@@ -44,7 +44,7 @@ eventService.factory("LicenseManager", function(License) {
     this.current[license_json.id] = new License(license_json);
     this.current[license_json.id].push(license_json.events);
     var self = this;
-    if(this.current[license_json.id].is_visible)
+    if(this.current[license_json.id].is_visible())
       angular.forEach(this.current[license_json.id].events, function(e) {
         self.visible_events.push(e);
       });
@@ -64,8 +64,12 @@ eventService.factory("License", function($resource) {
     this.events = [];
 
     this.initialize = function(license) {
+      var _split_url = location.href.split("/");
+      var project_id = _split_url[_split_url.length - 3];
+
       this.current = new License();
-      this.id = license.id;
+      this.current.project_id = project_id;
+      this.current.schedule_id = license.id;
       this.color = license.color;
       this.title = license.name;
       this.events = [];
@@ -90,6 +94,28 @@ eventService.factory("License", function($resource) {
 
     this.is_visible = function(){
       return this.visible === "active";
+    };
+
+    // angular.copyしないと参照先要素が書きかわり、2回目のリクエストで失敗する
+    this.save = function(success, error) {
+      var self = this;
+      var current = angular.copy(this.current);
+      var master_filter = function(e,_) {
+        self.visible = 'hidden-decorator';
+        success(self.events);
+      };
+
+      current.$save(master_filter, error);
+    };
+
+    this.delete = function(success, error) {
+      var self = this;
+      var current = angular.copy(this.current);
+      var callback = function(e,_) {
+        success(self.events);
+        self.visible = 'active';
+      };
+      current.$delete(callback, error);
     };
 
     this.initialize.apply(this, arguments);
@@ -234,12 +260,10 @@ calendarApp.directive('eventFormModal', function(Event) {
 
       scope.createEvent = function() {
         var error = function(response) {
-          console.log(response);
           scope.showNotification("ライセンス数の上限に引っかかっています");
         };
 
         var success = function(event) {
-          console.log(event);
           scope.myCalendar.fullCalendar("renderEvent", event,  true);
           scope.licenses[e.event.schedule_id].events.push(event);
         };
@@ -315,14 +339,13 @@ calendarApp.directive("notificationModal", function() {
 });
 
 
-calendarApp.directive("licenseList", function(LicenseParticipation) {
+calendarApp.directive("licenseList", function(LicenseManager, LicenseParticipation) {
   return {
     restrict: 'A',
     link: function(scope, element, attr) {
-      scope.hiddenLicense = function(license, element) {
-        var hidden = function(e, _) {
+      scope.hiddenLicense = function(element) {
+        var hidden = function(events) {
           var removeIds = [];
-          var events = scope.licenses[element.license.id].events;
           for(var i=0;i<events.length;i++)
             removeIds.push(events[i]._id);
 
@@ -334,7 +357,6 @@ calendarApp.directive("licenseList", function(LicenseParticipation) {
             return false;
           };
           scope.myCalendar.fullCalendar('removeEvents', filter);
-          element.license.visiable = 'hidden-decorator';
         };
 
         var error = function(response) {
@@ -342,13 +364,12 @@ calendarApp.directive("licenseList", function(LicenseParticipation) {
           scope.showNotification("リクエストが失敗しました");
         };
 
-        license.$save(hidden, error);
+        element.license.save(hidden, error);
       };
 
-      scope.showLicense = function(license, element) {
-        var show = function(e, _) {
-          scope.myCalendar.fullCalendar('addEventSource', element.license.events);
-          element.license.visiable = 'active';
+      scope.showLicense = function(element) {
+        var show = function(events) {
+          scope.myCalendar.fullCalendar('addEventSource', events);
         };
 
         var error = function(response) {
@@ -356,20 +377,15 @@ calendarApp.directive("licenseList", function(LicenseParticipation) {
           scope.showNotification("リクエストが失敗しました");
         };
 
-        license.$delete(show, error);
+        console.log(element);
+        element.license.delete(show, error);
       };
 
       scope.switchLicense = function() {
-        var licenseParticipation = new LicenseParticipation();
-        licenseParticipation.project_id = scope.project_id;
-        licenseParticipation.schedule_id = this.license.id;
-        var self = this;
-
-        // POST Request
-        if (this.license.visiable === 'active') {
-          scope.hiddenLicense(licenseParticipation, self);
+        if (this.license.is_visible()) {
+          scope.hiddenLicense(this);
         } else {
-          scope.showLicense(licenseParticipation, self);
+          scope.showLicense(this);
         }
       };
 
@@ -389,6 +405,10 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
   var m = date.getMonth();
   var y = date.getFullYear();
   var _split_url = location.href.split("/");
+  // [TODO] Angularの$location.path()が空文字でかえってくる
+  // 現在のURLからプロジェクトIDをとってくる
+  $scope.project_id = _split_url[_split_url.length - 3];
+
   var current_date = new Date(y,m,1);
 
   $scope.licenses = LicenseManager;
@@ -417,9 +437,6 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
 
   $scope.eventSources = [$scope.licenses.visible_events, $scope.eventSource, $scope.eventsF];
 
-  // [TODO] Angularの$location.path()が空文字でかえってくる
-  // 現在のURLからプロジェクトIDをとってくる
-  $scope.project_id = _split_url[_split_url.length - 3];
 
   $scope.option_years = [];
   for(var i=y-5;i<=y+5;i++) {
@@ -534,7 +551,6 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
     $scope.$apply(function() {
       $scope.initializeDialog();
       $scope.setEventDateFromStartAndEnd(start, end);
-      //$scope.newReservation = true;
       $scope.showEventForm(start, end);
       $scope.myCalendar.fullCalendar("unselect");
     });
