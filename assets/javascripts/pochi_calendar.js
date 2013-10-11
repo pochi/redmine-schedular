@@ -179,7 +179,7 @@ eventService.factory("Event", function($resource, LicenseManager) {
     // LicenseManagerを色の依存関係だけのために使うか
     this.to_calendar = function(event) {
       var team_name = $("#teams").data("articles")[event.team_id];
-      var title = e.event.content ? team_name + "-" + e.event.username + "(" + e.event.content + ")" : team_name + "-" + e.event.username;
+      var title = event.content ? team_name + "-" + event.username + "(" + event.content + ")" : team_name + "-" + event.username;
       return {
         title: title,
         content: event.content,
@@ -591,16 +591,6 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
     });
   };
 
-  $scope.editEventBk = function(event) {
-    $scope.$apply(function(){
-
-      $scope.updateModalOpts();
-      $scope.updateEvent(event);
-      $scope.newReservation = true;
-    });
-  };
-
-
   // next button, prev button
   // Event manage
   $scope.viewDisplay = function(view) {
@@ -672,13 +662,6 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
     }, function error(response) {
         console.log(response);
     });
-  };
-
-
-  $scope.updateModalOpts = function() {
-    $scope.modalOpts.title = '更新';
-    $scope.modalOpts.submitText = '更新';
-    $scope.modalOpts.delete = true;
   };
 
   $scope.updateEvent = function(event) {
