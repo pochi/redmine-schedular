@@ -50,6 +50,10 @@ eventService.factory("LicenseManager", function(License) {
       });
   };
 
+  Licenses.find = function(event) {
+    return this.current[event.schedule_id];
+  };
+
   return Licenses;
 });
 
@@ -78,13 +82,18 @@ eventService.factory("License", function($resource) {
 
     this.push = function(events) {
       var self = this;
+
       angular.forEach(events, function(e) {
-        var event = {title: e.event.content,
-                     _id: 'event-' + e.event.id,
+        var team_name = $("#teams").data("articles")[e.event.team_id];
+        var title = e.event.content ? team_name + "-" + e.event.username + "(" + e.event.content + ")" : team_name + "-" + e.event.username;
+        var event = {title: title,
+                     _id: e.event.id,
+                     content: e.event.content,
                      start: e.event.start_date,
                      end: e.event.end_date,
+                     username: e.event.username,
                      team: e.event.team_id,
-                     className: 'custom-license-event-' + self.id,
+                     _schedule_id: e.event.schedule_id,
                      backgroundColor: self.color,
                      borderColor: 'white'
                     };
@@ -124,7 +133,7 @@ eventService.factory("License", function($resource) {
   return LicenseService;
 });
 
-eventService.factory("Event", function($resource) {
+eventService.factory("Event", function($resource, LicenseManager) {
   var Event = $resource('/projects/:project_id/schedulers/:schedule_id/events/:event_id', {
     project_id: '@project_id',
     schedule_id: '@schedule_id',
@@ -136,11 +145,18 @@ eventService.factory("Event", function($resource) {
     }
   });
 
-  var EventService = function(start, end) {
-    this.initialize = function(project_id, start, end) {
+  var EventService = function(options) {
+
+    this.initialize = function(options) {
       this.current = new Event();
-      this.current.project_id = project_id;
-      this.setDate(start, end);
+      this.setDate(options.start, options.end);
+      this.current.project_id = options.project_id;
+      this.current.user = options.user_id;
+      this.current.username = options.username;
+      this.current.team_id = options.team;
+      this.current.schedule_id = options._schedule_id;
+      this.current.event_id = options._id;
+      this.current.content = options.content;
     };
 
     this.setDate = function(start, end) {
@@ -159,20 +175,21 @@ eventService.factory("Event", function($resource) {
       return (this.end.getMonth() + 1) + " 月 " + this.end.getDate() + " 日";
     };
 
-/*
-  // resource event callback
-                 backgroundColor: $scope.licenses[e.event.schedule_id].color,
-*/
 
+    // LicenseManagerを色の依存関係だけのために使うか
     this.to_calendar = function(event) {
+      var team_name = $("#teams").data("articles")[event.team_id];
+      var title = e.event.content ? team_name + "-" + e.event.username + "(" + e.event.content + ")" : team_name + "-" + e.event.username;
       return {
-        title: event.content,
-        _id: 'event-' + event.id,
+        title: title,
+        content: event.content,
+        _id: event.id,
         start: event.start_date,
         end: event.end_date,
-        schedule_id: event.schedule_id,
+        username: event.username,
         team: event.team_id,
-        className: 'custom-license-event-' + event.schedule_id,
+        _schedule_id: event.schedule_id,
+        backgroundColor: LicenseManager.find(event).color,
         borderColor: 'white'
       };
     };
@@ -185,10 +202,8 @@ eventService.factory("Event", function($resource) {
       var self = this;
       var callback = function(e, _) {
         self.set_id(e.event);
-        // Viewからのコールバックを実行
         success(self.to_calendar(e.event));
       };
-
       this.current.$save(callback, error);
     };
 
@@ -244,19 +259,37 @@ calendarApp.directive('eventFormModal', function(Event) {
 
       scope.eventForm = false;
       scope.currentEvent = {
-        title: '新規作成',
-        deleteable: false,
-        submitText: '作成'
+        deleteable: false
       };
 
       scope.closeEventForm = function() {
         scope.eventForm = false;
       };
 
+      // New
       scope.showEventForm = function(start, end) {
-        scope.formEvent = new Event(project_id, start, end);
+        scope.currentEvent = {
+          title: '新規作成',
+          submitText: '作成'
+        };
+
+        scope.formEvent = new Event({project_id: project_id,
+                                     start: start,
+                                     end: end});
         scope.eventForm = true;
       };
+
+      // Edit
+      scope.showEditEventForm = function(event) {
+        scope.currentEvent = {
+          title: '更新',
+          submitText: '更新'
+        };
+
+        scope.formEvent = new Event(event);
+        scope.eventForm = true;
+      };
+
 
       scope.createEvent = function() {
         var error = function(response) {
@@ -265,7 +298,7 @@ calendarApp.directive('eventFormModal', function(Event) {
 
         var success = function(event) {
           scope.myCalendar.fullCalendar("renderEvent", event,  true);
-          scope.licenses[e.event.schedule_id].events.push(event);
+          scope.licenses.find(event).events.push(event);
         };
 
         scope.formEvent.create(success, error);
@@ -275,8 +308,6 @@ calendarApp.directive('eventFormModal', function(Event) {
     templateUrl: 'event_form.html'
   };
 });
-
-
 
 var eventsService = angular.module('eventsService', ['ngResource']);
 eventsService.factory('Events', function($resource) {
@@ -558,11 +589,20 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
 
   $scope.editEvent = function(event) {
     $scope.$apply(function(){
+      console.log(event);
+      $scope.showEditEventForm(event);
+    });
+  };
+
+  $scope.editEventBk = function(event) {
+    $scope.$apply(function(){
+
       $scope.updateModalOpts();
       $scope.updateEvent(event);
       $scope.newReservation = true;
     });
   };
+
 
   // next button, prev button
   // Event manage
@@ -625,17 +665,8 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
     }
   };
 
+  // 以下のメソッドは全てモデルに移行予定
   $scope.modalOpts = modalOpts;
-
-  $scope.activate_calendar = function(name) {
-    alert("pochi");
-    console.log($scope.sourceCalendar);
-  };
-
-  $scope.dialogOpen = function() {
-    $scope.initializeDialog();
-    $scope.newReservation = true;
-  };
 
   $scope.initializeDialog = function() {
     $scope.modalOpts.title = '新規予約';
@@ -650,12 +681,6 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
     $scope.endYear = null;
     $scope.endMonth = null;
     $scope.endDate = null;
-  };
-
-  $scope.dialogClose = function() {
-    $scope.closeMsg = 'I was closed at: ' + new Date();
-    $scope.newReservation = false;
-    $scope.alertEventMessage = '';
   };
 
   $scope.deleteEvent = function() {

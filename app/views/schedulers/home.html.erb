@@ -50,7 +50,7 @@
           <h4>{{ currentEvent.alert }}</h4>
         </div>
         <div class="event_form">
-          <form novalidate ng-init="formEvent.eventId = eventId">
+          <form novalidate ng-init="formEvent.current.event_id = formEvent.current.event_id || event_id">
             <table cellpadding='0' cellspacing='0'>
               <tbody>
                 <tr>
@@ -60,17 +60,17 @@
                 <tr>
                   <th class="form_left">申請者:</th>
                   <td>
-                    <input ng-model="formEvent.current.user"
-                           ng-init="formEvent.current.user = '<%= User.current.name %>'"
+                    <input ng-model="formEvent.current.username"
+                           ng-init="formEvent.current.username = formEvent.current.username || '<%= User.current.name %>'"
                            size="25" type="text" required>
                   </td>
-                  <td class="error" ng-show="!formEvent.current.user">申請者は必須項目です</td>
+                  <td class="error" ng-show="!formEvent.current.username">申請者は必須項目です</td>
                 </tr>
                 <tr>
                   <th class="form_left">チーム名:</th>
                   <td>
                     <select ng-model="formEvent.current.team_id"
-                            ng-init="formEvent.current.team_id = team_id" required>
+                            ng-init="formEvent.current.team_id = formEvent.current.team_id || team_id" required>
                       <%= team_options %>
                     </select>
                   </td>
@@ -81,7 +81,7 @@
                   <td>
                     <select class="license"
                             ng-model="formEvent.current.schedule_id"
-                            ng-init="formEvent.current.schedule_id = schedule_id" required>
+                            ng-init="formEvent.current.schedule_id = formEvent.current.schedule_id || schedule_id" required>
                       <%= license_options(@schedules) %>
                     </select>
                   </td>
@@ -91,7 +91,7 @@
                   <th class="form_left">備考:</th>
                   <td>
                     <input ng-model="formEvent.current.content"
-                           ng-init="formEvent.current.content = title"
+                           ng-init="formEvent.current.content = formEvent.current.content || title"
                            size="25" type="text">
                   </td>
                 </tr>
