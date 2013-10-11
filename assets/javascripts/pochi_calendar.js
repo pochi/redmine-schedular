@@ -580,8 +580,6 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
 
   $scope.selectEvent = function(start, end, allDay) {
     $scope.$apply(function() {
-      $scope.initializeDialog();
-      $scope.setEventDateFromStartAndEnd(start, end);
       $scope.showEventForm(start, end);
       $scope.myCalendar.fullCalendar("unselect");
     });
@@ -589,7 +587,6 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
 
   $scope.editEvent = function(event) {
     $scope.$apply(function(){
-      console.log(event);
       $scope.showEditEventForm(event);
     });
   };
@@ -667,21 +664,6 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
 
   // 以下のメソッドは全てモデルに移行予定
   $scope.modalOpts = modalOpts;
-
-  $scope.initializeDialog = function() {
-    $scope.modalOpts.title = '新規予約';
-    $scope.modalOpts.submitText = '作成';
-    $scope.modalOpts.delete = false;
-    $scope.title = null;
-    $scope.license = null;
-    $scope.eventId = null;
-    $scope.startYear = null;
-    $scope.startMonth = null;
-    $scope.startDate = null;
-    $scope.endYear = null;
-    $scope.endMonth = null;
-    $scope.endDate = null;
-  };
 
   $scope.deleteEvent = function() {
     var resource = $scope.replaceEventModelFrom(this);
