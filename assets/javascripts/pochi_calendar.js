@@ -20,18 +20,6 @@ calendarApp.run(function($rootScope, $location) {
 });
 
 var eventService = angular.module('eventService', ['ngResource']);
-eventService.factory('EventBB', function($resource) {
-  return $resource('/projects/:project_id/schedulers/:schedule_id/events/:event_id', {
-    project_id: '@project_id',
-    schedule_id: '@schedule_id',
-    event_id: '@event_id',
-    format: 'json'
-  }, {
-    update: {
-      method: 'PUT'
-    }
-  });
-});
 
 eventService.factory("LicenseManager", function(License) {
   var Licenses = {
@@ -52,6 +40,11 @@ eventService.factory("LicenseManager", function(License) {
 
   Licenses.find = function(event) {
     return this.current[event.schedule_id];
+  };
+
+  Licenses.replace = function(before_update_event, after_update_event) {
+    var current_license = Licenses.find(before_update_event);
+    current_license.replace(before_update_event, after_update_event);
   };
 
   return Licenses;
@@ -93,7 +86,7 @@ eventService.factory("License", function($resource) {
                      end: e.event.end_date,
                      username: e.event.username,
                      team: e.event.team_id,
-                     _schedule_id: e.event.schedule_id,
+                     schedule_id: e.event.schedule_id,
                      backgroundColor: self.color,
                      borderColor: 'white'
                     };
@@ -103,6 +96,17 @@ eventService.factory("License", function($resource) {
 
     this.is_visible = function(){
       return this.visible === "active";
+    };
+
+    this.replace = function(before_update_event, after_update_event) {
+      var current_events = this.events;
+      var replace_events = [];
+      for(var i=0;i<current_events.length;i++) {
+        if (current_events[i]._id !== before_update_event.event_id)
+          replace_events.push(current_events[i]);
+      }
+      this.events = replace_events;
+      this.events.push(after_update_event);
     };
 
     // angular.copyしないと参照先要素が書きかわり、2回目のリクエストで失敗する
@@ -148,13 +152,16 @@ eventService.factory("Event", function($resource, LicenseManager) {
   var EventService = function(options) {
 
     this.initialize = function(options) {
+      var _split_url = location.href.split("/");
+      var project_id = _split_url[_split_url.length - 3];
+
       this.current = new Event();
       this.setDate(options.start, options.end);
-      this.current.project_id = options.project_id;
+      this.current.project_id = project_id;
       this.current.user = options.user_id;
       this.current.username = options.username;
       this.current.team_id = options.team;
-      this.current.schedule_id = options._schedule_id;
+      this.current.schedule_id = options.schedule_id;
       this.current.event_id = options._id;
       this.current.content = options.content;
     };
@@ -188,7 +195,7 @@ eventService.factory("Event", function($resource, LicenseManager) {
         end: event.end_date,
         username: event.username,
         team: event.team_id,
-        _schedule_id: event.schedule_id,
+        schedule_id: event.schedule_id,
         backgroundColor: LicenseManager.find(event).color,
         borderColor: 'white'
       };
@@ -201,10 +208,22 @@ eventService.factory("Event", function($resource, LicenseManager) {
     this.create = function(success, error) {
       var self = this;
       var callback = function(e, _) {
-        self.set_id(e.event);
-        success(self.to_calendar(e.event));
+        var event = self.to_calendar(e.event);
+        self.set_id(event);
+        LicenseManager.find(event).events.push(event);
+        success(event);
       };
       this.current.$save(callback, error);
+    };
+
+    this.update = function(success, error) {
+      var self = this;
+      var current = angular.copy(this.current);
+      var callback = function(e,_) {
+        LicenseManager.replace(self.current, self.to_calendar(e.event));
+        success(self.current, self.to_calendar(e.event));
+      };
+      current.$update(callback ,error);
     };
 
     this.initialize.apply(this, arguments);
@@ -290,18 +309,36 @@ calendarApp.directive('eventFormModal', function(Event) {
         scope.eventForm = true;
       };
 
+      scope.create_or_update = function() {
+        scope.formEvent.current.event_id ? scope.updateEvent() : scope.createEvent();
+      };
 
       scope.createEvent = function() {
         var error = function(response) {
+          console.log(response);
           scope.showNotification("ライセンス数の上限に引っかかっています");
         };
 
         var success = function(event) {
           scope.myCalendar.fullCalendar("renderEvent", event,  true);
-          scope.licenses.find(event).events.push(event);
         };
 
         scope.formEvent.create(success, error);
+        scope.eventForm = false;
+      };
+
+      scope.updateEvent = function() {
+        var error = function(response) {
+          console.log(response);
+          scope.showNotification("ライセンス数の上限に引っかかっています");
+        };
+
+        var success = function(before_update_event, after_update_event) {
+          scope.myCalendar.fullCalendar("removeEvents", before_update_event.event_id);
+          scope.myCalendar.fullCalendar("renderEvent", after_update_event,  true);
+        };
+
+        scope.formEvent.update(success, error);
         scope.eventForm = false;
       };
     },
@@ -371,8 +408,11 @@ calendarApp.directive("licenseList", function(LicenseManager, LicenseParticipati
       scope.hiddenLicense = function(element) {
         var hidden = function(events) {
           var removeIds = [];
-          for(var i=0;i<events.length;i++)
-            removeIds.push(events[i]._id);
+
+          for(var i=0;i<events.length;i++) {
+            var _id = events[i]._id || events[i].id;
+            removeIds.push(_id);
+          }
 
           var filter = function(event) {
             for(var i=0; i<removeIds.length; i++) {
@@ -402,7 +442,6 @@ calendarApp.directive("licenseList", function(LicenseManager, LicenseParticipati
           scope.showNotification("リクエストが失敗しました");
         };
 
-        console.log(element);
         element.license.delete(show, error);
       };
 
@@ -422,8 +461,6 @@ calendarApp.directive("licenseList", function(LicenseManager, LicenseParticipati
   };
 });
 
-
-
 calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Event, Events, LicenseParticipation, LicenseManager, EventManager, eventHelper) {
   var date = new Date();
   var d = date.getDate();
@@ -437,12 +474,10 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
   var current_date = new Date(y,m,1);
 
   $scope.licenses = LicenseManager;
-
-  $scope.newReservation = false;
-  $scope.updateEvent = false;
   $scope.eventSource = {
     className: "pochi-event"
   };
+
   // Global変数。初回読み込みサーバとはIDのみでやり取りする
   $scope.teams = $("#teams").data("articles");
 
@@ -655,33 +690,6 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
         console.log(response);
     });
   };
-
-  $scope.updateEvent = function(event) {
-    $scope.eventId = eventHelper.getEventId(event._id);
-    $scope.setEventDate(event);
-    $scope.title = event.title;
-    $scope.team = event.team;
-    console.log(event);
-
-    var customEventArray = event.className[0].split('-');
-    $scope.license = customEventArray[customEventArray.length-1];
-  };
-
-  $scope.setEventDate = function(event) {
-    if(event.end === null)
-      event.end = event.start;
-    $scope.setEventDateFromStartAndEnd(event.start, event.end);
-  };
-
-  $scope.setEventDateFromStartAndEnd = function(start, end) {
-    $scope.startYear = start.getFullYear();
-    $scope.startMonth = start.getMonth() + 1;
-    $scope.startDate = start.getDate();
-    $scope.endYear = end.getFullYear();
-    $scope.endMonth = end.getMonth() + 1;
-    $scope.endDate = end.getDate();
-  };
-
 
   $scope.afterDelete = function(e) {
     var replaceEvents = [];
