@@ -333,12 +333,6 @@ licenseParticipationService.factory("LicenseParticipation", function($resource) 
   });
 });
 
-calendarApp.value('modalOpts', {
-  backdropFade: true,
-  dialogFade:true,
-  delete: false
-});
-
 calendarApp.value('eventHelper', {
   getEventId: function(eventId) {
     var eventIdArray = eventId.split('-');
@@ -430,7 +424,7 @@ calendarApp.directive("licenseList", function(LicenseManager, LicenseParticipati
 
 
 
-calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Event, Events, LicenseParticipation, LicenseManager, EventManager, modalOpts, eventHelper) {
+calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Event, Events, LicenseParticipation, LicenseManager, EventManager, eventHelper) {
   var date = new Date();
   var d = date.getDate();
   var m = date.getMonth();
@@ -653,8 +647,6 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
   };
 
   // 以下のメソッドは全てモデルに移行予定
-  $scope.modalOpts = modalOpts;
-
   $scope.deleteEvent = function() {
     var resource = $scope.replaceEventModelFrom(this);
     resource.$delete(function(e, _){
