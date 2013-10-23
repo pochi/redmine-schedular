@@ -720,48 +720,6 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
       }
     }
   };
-
-  // 以下のメソッドは全てモデルに移行予定
-
-  $scope.afterUpdate = function(e, beforeEventId) {
-    var event = {title: e.event.content,
-                 _id: 'event-' + e.event.id,
-                 start: e.event.start_date,
-                 end: e.event.end_date,
-                 backgroundColor: $scope.licenses[e.event.schedule_id].color,
-                 className: 'custom-license-event-' + e.event.schedule_id,
-                 borderColor: 'white'
-                };
-    $scope.myCalendar.fullCalendar("removeEvents", 'event-' + beforeEventId);
-    $scope.myCalendar.fullCalendar("renderEvent", event,  true);
-    var replaceEvents = [];
-    var currentEvents = $scope.licenses[e.event.schedule_id].events;
-    for(var i=0;i<currentEvents;i++) {
-      if (currentEvents[i]._id !== 'event-' + beforeEventId)
-        replaceEvents.push(currentEvents[i]);
-    }
-    $scope.licenses[e.event.schedule_id].events = replaceEvents;
-    $scope.licenses[e.event.schedule_id].events.push(event);
-    $scope.newReservation = false;
-  };
-
-  $scope.dateIsNotFilled = function(event) {
-    if(!event.endDate)
-      return true;
-    if(!event.endMonth)
-      return true;
-    if(!event.endYear)
-      return true;
-    if(!event.startDate)
-      return true;
-    if(!event.startMonth)
-      return true;
-    if(!event.startYear)
-      return true;
-
-    return false;
-  };
-
 });
 
 // ng-model以外のイベントはこっちでやる。
