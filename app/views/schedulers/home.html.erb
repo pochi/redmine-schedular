@@ -25,7 +25,7 @@
       <div class='modal-header'>
         <h3>{{notificationMessageContent}}</h3>
       </div>
-      <div class='modal-footer'><button class='btn' ng-click='notificationClose()'>
+      <div class='modal-footer'><button class='btn' ng-click='closeNotification()'>
         OK
       </div>
     </script>
@@ -33,11 +33,77 @@
     <script type="text/ng-template" id="license_list.html">
         <h5 class='license_list_title'>ライセンスリスト</h5>
         <ul>
-          <div ng-repeat='license in licenses' class='license_list' id='licence_{{ license.id }}' ng-click='switchLicense()'>
+          <div ng-repeat='license in licenses.current' class='license_list' id='licence_{{ license.id }}' ng-click='switchLicense()'>
             <div class='color_box' ng-style="bgstyle(license.color)"></div>
-            <div class='license_title ng-class:license.visiable'>{{ license.title }}</div>
+            <div class='license_title ng-class:license.visible'>{{ license.title }}</div>
           </div>
         </ul>
+    </script>
+
+    <script type="text/ng-template" id="event_form.html">
+      <div class="modal-header clearfix">
+        <h3 style="float: left;">{{ currentEvent.title }}</h3>
+        <a ng-show='formEvent.deleteable' ng-click='deleteEvent()' style="float: right">x 削除</a>
+      </div>
+      <div class="modal-body">
+        <div class="alert-error calAlert">
+          <h4>{{ currentEvent.alert }}</h4>
+        </div>
+        <div class="event_form">
+          <form novalidate ng-init="formEvent.current.event_id = formEvent.current.event_id || event_id">
+            <table cellpadding='0' cellspacing='0'>
+              <tbody>
+                <tr>
+                  <th class="form_left">日時:</th>
+                  <td>{{ formEvent.start_date() }} ~ {{ formEvent.end_date() }}</td>
+                </tr>
+                <tr>
+                  <th class="form_left">申請者:</th>
+                  <td>
+                    <input ng-model="formEvent.current.username"
+                           ng-init="formEvent.current.username = formEvent.current.username || '<%= User.current.name %>'"
+                           size="25" type="text" required>
+                  </td>
+                  <td class="error" ng-show="!formEvent.current.username">申請者は必須項目です</td>
+                </tr>
+                <tr>
+                  <th class="form_left">チーム名:</th>
+                  <td>
+                    <select ng-model="formEvent.current.team_id"
+                            ng-init="formEvent.current.team_id = formEvent.current.team_id || team_id" required>
+                      <%= team_options %>
+                    </select>
+                  </td>
+                  <td class="error" ng-show="!formEvent.current.team_id">チーム名は必須です</td>
+                </tr>
+                <tr>
+                  <th class="form_left">ライセンス:</th>
+                  <td>
+                    <select class="license"
+                            ng-model="formEvent.current.schedule_id"
+                            ng-init="formEvent.current.schedule_id = formEvent.current.schedule_id || schedule_id" required>
+                      <%= license_options(@schedules) %>
+                    </select>
+                  </td>
+                  <td class="error" ng-show="!formEvent.current.schedule_id">ライセンスは必須です</td>
+                </tr>
+                <tr>
+                  <th class="form_left">備考:</th>
+                  <td>
+                    <input ng-model="formEvent.current.content"
+                           ng-init="formEvent.current.content = formEvent.current.content || title"
+                           size="25" type="text">
+                  </td>
+                </tr>
+              <tbody>
+            </table>
+          </form>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" ng-click="closeEventForm()">キャンセル</button>
+        <button class="btn" ng-click="create_or_update()">{{ currentEvent.submitText }}</button>
+      </div>
     </script>
 
     <div class='row-fluid'>
@@ -48,119 +114,10 @@
         <div license_list></div>
         <div id="teams" data-articles="<%= teams %>"></div>
         <div modal="notificationMessage" notification_modal></div>
-
+        <div modal="eventForm" event_form_modal></div>
       </div>
       <div class='span10' style='margin-top: 10px;'>
         <div ui-calendar='uiConfig.calendar' ng-model='eventSources' config='uiConfig.calendar' calendar='myCalendar'></div>
-
-        <div modal="newReservation" close="dialogClose()" options="opts">
-          <div class="modal-header">
-            <h3>{{ modalOpts.title }}</h3>
-            <a ng-show='modalOpts.delete' ng-click='deleteEvent()'>x 削除</a>
-          </div>
-          <div class="modal-body">
-            <div class="alert-error calAlert">
-              <h4>{{alertEventMessage}}</h4>
-            </div>
-            <!-- [TODO] Form以下のレイアウトを正しく直す -->
-            <form name="newEvent" novalidate ng-init="newEvent.eventId = eventId">
-              <select id="event_start_date_1i"
-                      name="event[start_date(1i)]"
-                      ng-model="newEvent.startYear"
-                      ng-options="year for year in option_years"
-                      ng-init="newEvent.startYear = startYear"
-                      required>
-              </select>
-              <select id="event_start_date_2i"
-                      name="event[start_date(2i)]"
-                      ng-model="newEvent.startMonth"
-                      ng-options="month for month in option_months"
-                      ng-init="newEvent.startMonth = startMonth"
-                      required>
-              </select>
-              <select id="event_start_date_3i"
-                      name="event[start_date(3i)]"
-                      ng-model="newEvent.startDate"
-                      ng-options="day for day in option_days"
-                      ng-init="newEvent.startDate = startDate"
-                      required>
-              </select>
-            -
-              <select id="event_end_date_1i"
-                      name="event[end_date(1i)]"
-                      ng-model="newEvent.endYear"
-                      ng-options="year for year in option_years"
-                      ng-init="newEvent.endYear = endYear"
-                      required>
-              </select>
-              <select id="event_end_date_2i"
-                      name="event[end_date(2i)]"
-                      ng-model="newEvent.endMonth"
-                      ng-options="month for month in option_months"
-                      ng-init="newEvent.endMonth = endMonth"
-                      required>
-              </select>
-              <select id="event_end_date_3i"
-                      name="event[end_date(3i)]"
-                      ng-model="newEvent.endDate"
-                      ng-options="day for day in option_days"
-                      ng-init="newEvent.endDate = endDate"
-                      required>
-              </select>
-              <br>
-              <span class="error" ng-show="dateIsNotFilled(newEvent)">日付は必須項目です</span>
-
-              <br>
-            申請者<br>
-              <input id="event_user"
-                     name="event[user]"
-                     ng-model="newEvent.user"
-                     ng-init="newEvent.user = '<%= User.current.name %>'"
-                     size="30"
-                     type="text"
-                     required>
-              <br>
-              <span class="error" ng-show="!newEvent.user">申請者は必須項目です</span>
-              <br>
-            チーム名<br>
-              <select class="team"
-                      name="event[team]"
-                      ng-model="newEvent.team"
-                      ng-init="newEvent.team = team"
-                      required>
-                <%= team_options %>
-              </select>
-              <br>
-              <span class="error" ng-show="!newEvent.team">チーム名は必須項目です</span>
-              <br>
-            ライセンス<br>
-              <!-- selectオプションに出てくるundefinedはAngularのバグ -->
-              <select class="license"
-                      ng-model="newEvent.license"
-                      ng-init="newEvent.license = license"
-                      name="event[license]"
-                      required>
-                <%= license_options(@schedules) %>
-              </select>
-              <br>
-              <span class="error" ng-show="!newEvent.license">ライセンスは必須項目です</span>
-              <br>
-            備考<br>
-              <input id="event_content"
-                     name="event[content]"
-                     ng-model="newEvent.content"
-                     ng-init="newEvent.content = title"
-                     size="30"
-                     type="text"
-                     required>
-              <br>
-            </form>
-          </div>
-          <div class="modal-footer">
-            <button class="btn" ng-click="dialogClose()">キャンセル</button>
-            <button class="btn" ng-click="createEvent(newEvent)" ng-disabled="newEvent.$invalid">{{ modalOpts.submitText }}</button>
-          </div>
-        </div>
       </div>
     </div>
   </body>
