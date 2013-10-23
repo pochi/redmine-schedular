@@ -1,4 +1,3 @@
-
 // Angularの設計課題
 
 'use strict';
@@ -45,6 +44,10 @@ eventService.factory("LicenseManager", function(License) {
   Licenses.replace = function(before_update_event, after_update_event) {
     var current_license = Licenses.find(before_update_event);
     current_license.replace(before_update_event, after_update_event);
+  };
+
+  Licenses.delete = function(event) {
+    this.find(event).exclude(event);
   };
 
   return Licenses;
@@ -109,6 +112,16 @@ eventService.factory("License", function($resource) {
       this.events.push(after_update_event);
     };
 
+    this.exclude = function(event) {
+      var current_events = this.events;
+      var replace_events = [];
+      for(var i=0;i<current_events.length;i++) {
+        if (current_events[i]._id !== event.id)
+          replace_events.push(current_events[i]);
+      }
+      this.events = replace_events;
+    };
+
     // angular.copyしないと参照先要素が書きかわり、2回目のリクエストで失敗する
     this.save = function(success, error) {
       var self = this;
@@ -164,6 +177,8 @@ eventService.factory("Event", function($resource, LicenseManager) {
       this.current.schedule_id = options.schedule_id;
       this.current.event_id = options._id;
       this.current.content = options.content;
+
+      this.deleteable = true;
     };
 
     this.setDate = function(start, end) {
@@ -225,6 +240,16 @@ eventService.factory("Event", function($resource, LicenseManager) {
       };
       current.$update(callback ,error);
     };
+
+    this.destroy = function(success, error) {
+      var self = this;
+      var callback = function(e,_) {
+        LicenseManager.delete(self.current.event);
+        success(self.current.event);
+      };
+      this.current.$delete(callback, error);
+    };
+
 
     this.initialize.apply(this, arguments);
   };
@@ -324,7 +349,7 @@ calendarApp.directive('eventFormModal', function(Event) {
         };
 
         scope.formEvent.create(success, error);
-        scope.eventForm = false;
+        scope.closeEventForm();
       };
 
       scope.updateEvent = function() {
@@ -339,8 +364,23 @@ calendarApp.directive('eventFormModal', function(Event) {
         };
 
         scope.formEvent.update(success, error);
+        scope.closeEventForm();
+      };
+
+      scope.deleteEvent = function(event) {
+        var error = function(response) {
+          console.log(response);
+          scope.showNotification("削除に失敗しました");
+        };
+
+        var success = function(event) {
+          scope.myCalendar.fullCalendar("removeEvents", event.id);
+        };
+
+        scope.formEvent.destroy(success, error);
         scope.eventForm = false;
       };
+
     },
     templateUrl: 'event_form.html'
   };
@@ -682,28 +722,6 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
   };
 
   // 以下のメソッドは全てモデルに移行予定
-  $scope.deleteEvent = function() {
-    var resource = $scope.replaceEventModelFrom(this);
-    resource.$delete(function(e, _){
-      $scope.afterDelete(e);
-    }, function error(response) {
-        console.log(response);
-    });
-  };
-
-  $scope.afterDelete = function(e) {
-    var replaceEvents = [];
-    var currentEvents = $scope.licenses[e.event.schedule_id].events;
-    for(var i=0;i<currentEvents;i++) {
-      if (currentEvents[i]._id !== 'event-' + e.event.id)
-        replaceEvents.push(currentEvents[i]);
-    }
-    $scope.myCalendar.fullCalendar("removeEvents", 'event-' + e.event.id);
-    $scope.licenses[e.event.schedule_id].events = replaceEvents;
-    $scope.licenses[e.event.schedule_id].events.push(e.event);
-    $scope.dialogClose();
-    $scope.showNotification('予定を削除しました');
-  };
 
   $scope.afterUpdate = function(e, beforeEventId) {
     var event = {title: e.event.content,

@@ -41,9 +41,9 @@
     </script>
 
     <script type="text/ng-template" id="event_form.html">
-      <div class="modal-header">
-        <h3>{{ currentEvent.title }}</h3>
-        <a ng-show='currentEvent.deleteable' ng-click='deleteEvent()'>x 削除</a>
+      <div class="modal-header clearfix">
+        <h3 style="float: left;">{{ currentEvent.title }}</h3>
+        <a ng-show='formEvent.deleteable' ng-click='deleteEvent()' style="float: right">x 削除</a>
       </div>
       <div class="modal-body">
         <div class="alert-error calAlert">
