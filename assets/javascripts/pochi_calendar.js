@@ -502,17 +502,10 @@ calendarApp.directive("licenseList", function(LicenseManager, LicenseParticipati
 });
 
 calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Event, Events, LicenseParticipation, LicenseManager, EventManager, eventHelper) {
-  var date = new Date();
-  var d = date.getDate();
-  var m = date.getMonth();
-  var y = date.getFullYear();
   var _split_url = location.href.split("/");
   // [TODO] Angularの$location.path()が空文字でかえってくる
   // 現在のURLからプロジェクトIDをとってくる
   $scope.project_id = _split_url[_split_url.length - 3];
-
-  var current_date = new Date(y,m,1);
-
   $scope.licenses = LicenseManager;
   $scope.eventSource = {
     className: "pochi-event"
@@ -536,22 +529,6 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
   };
 
   $scope.eventSources = [$scope.licenses.visible_events, $scope.eventSource, $scope.eventsF];
-
-
-  $scope.option_years = [];
-  for(var i=y-5;i<=y+5;i++) {
-    $scope.option_years.push(i);
-  }
-
-  $scope.option_months = [];
-  for(var i=0;i<=12;i++) {
-    $scope.option_months.push(i);
-  }
-
-  $scope.option_days = [];
-  for(var i=0;i<=31;i++) {
-    $scope.option_days.push(i);
-  }
 
   $scope.alertOnDrop = function(event, day, minute, allDay, revert, js, ui, view) {
     $scope.$apply(function(){
@@ -587,52 +564,6 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
       };
 
       current_event.update(success, error);
-    });
-  };
-
-  $scope.eventResizeaa = function(event, day, minute, revert, js, ui, view) {
-    $scope.$apply(function(){
-      var currentEventId = event._id;
-
-      var resource = new Event();
-      resource.project_id = $scope.project_id;
-      var eventIdArray = event._id.split("-");
-      var scheduleIdArray = event.className[0].split("-");
-      resource.event_id = eventIdArray[eventIdArray.length-1];
-      resource.schedule_id = scheduleIdArray[scheduleIdArray.length-1];
-
-      resource.start_date = event.start.getFullYear() + "-" + (event.start.getMonth() + 1) + "-" + event.start.getDate();
-      if(event.end !== null) {
-        resource.end_date = event.end.getFullYear() + "-" + (event.end.getMonth() + 1) + "-" + event.end.getDate();
-      } else {
-        resource.end_date  = resource.start_date;
-      }
-
-      resource.$update(function(e,_) {
-        var event = {title: e.event.content,
-                     _id: 'event-' + e.event.id,
-                     start: e.event.start_date,
-                     end: e.event.end_date,
-                     backgroundColor: $scope.licenses[e.event.schedule_id].color,
-                     className: 'custom-license-event-' + e.event.schedule_id,
-                     borderColor: 'white'
-                    };
-        $scope.myCalendar.fullCalendar("removeEvents", currentEventId);
-        $scope.myCalendar.fullCalendar("renderEvent", event,  true);
-        var replaceEvents = [];
-        var currentEvents = $scope.licenses[e.event.schedule_id].events;
-        for(var i=0;i<currentEvents;i++) {
-          if (currentEvents[i]._id !== currentEventId)
-            replaceEvents.push(currentEvents[i]);
-        }
-        $scope.licenses[e.event.schedule_id].events = replaceEvents;
-        $scope.licenses[e.event.schedule_id].events.push(event);
-        $scope.newReservation = false;
-      }, function error(response) {
-        $scope.showNotification('ライセンス数の上限により、保存できませんでした');
-        revert();
-        console.log(response);
-      });
     });
   };
 
