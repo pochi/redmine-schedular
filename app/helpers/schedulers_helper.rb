@@ -22,4 +22,8 @@ module SchedulersHelper
     end
     teams_hash.to_json
   end
+
+  def max_period
+    { :period => SchedulerSetting.current.period }.to_json
+  end
 end

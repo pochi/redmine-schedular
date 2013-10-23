@@ -548,9 +548,20 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
     });
   };
 
+  $scope.valid_period = function(start, end) {
+    var period = end - start;
+    var one_day = 86400000;
+    return (period >= $("#period").data("articles")["period"] * one_day) ? false : true;
+  };
 
   $scope.eventResize = function(event, day, minute, revert, js, ui, view) {
     $scope.$apply(function(){
+      if($scope.valid_period(event.start, event.end) === false) {
+        $scope.showNotification("予約期間が"  + $("#period").data("articles")["period"] +  "日を超えているため予約できません");
+        revert();
+        return false;
+      }
+
       var current_event = new Event(event);
       var error = function(response) {
         console.log(response);
@@ -569,6 +580,12 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
 
   $scope.selectEvent = function(start, end, allDay) {
     $scope.$apply(function() {
+      if($scope.valid_period(start, end) === false) {
+        $scope.showNotification("予約期間が"  + $("#period").data("articles")["period"] +  "日を超えているため予約できません");
+        $scope.myCalendar.fullCalendar("unselect");
+        return false;
+      }
+
       $scope.showEventForm(start, end);
       $scope.myCalendar.fullCalendar("unselect");
     });
