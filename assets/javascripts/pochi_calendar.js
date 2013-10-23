@@ -555,51 +555,22 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
 
   $scope.alertOnDrop = function(event, day, minute, allDay, revert, js, ui, view) {
     $scope.$apply(function(){
-      var currentEventId = event._id;
-
-      var resource = new Event();
-      resource.project_id = $scope.project_id;
-      var eventIdArray = event._id.split("-");
-      var scheduleIdArray = event.className[0].split("-");
-      resource.event_id = eventIdArray[eventIdArray.length-1];
-      resource.schedule_id = scheduleIdArray[scheduleIdArray.length-1];
-
-      resource.start_date = event.start.getFullYear() + "-" + (event.start.getMonth() + 1) + "-" + event.start.getDate();
-      if(event.end !== null) {
-        resource.end_date = event.end.getFullYear() + "-" + (event.end.getMonth() + 1) + "-" + event.end.getDate();
-      } else {
-        resource.end_date  = resource.start_date;
-      }
-      resource.team = event.team;
-
-      resource.$update(function(e,_) {
-        var event = {title: e.event.content,
-                     _id: 'event-' + e.event.id,
-                     start: e.event.start_date,
-                     end: e.event.end_date,
-                     team: e.event.team_id,
-                     backgroundColor: $scope.licenses[e.event.schedule_id].color,
-                     className: 'custom-license-event-' + e.event.schedule_id,
-                     borderColor: 'white'
-                    };
-        $scope.myCalendar.fullCalendar("removeEvents", currentEventId);
-        $scope.myCalendar.fullCalendar("renderEvent", event,  true);
-        var replaceEvents = [];
-        var currentEvents = $scope.licenses[e.event.schedule_id].events;
-        for(var i=0;i<currentEvents;i++) {
-          if (currentEvents[i]._id !== currentEventId)
-            replaceEvents.push(currentEvents[i]);
-        }
-        $scope.licenses[e.event.schedule_id].events = replaceEvents;
-        $scope.licenses[e.event.schedule_id].events.push(event);
-        $scope.newReservation = false;
-      }, function error(response) {
-        $scope.showNotification('ライセンス数の上限により、保存できませんでした');
-        revert();
+      var current_event = new Event(event);
+      var error = function(response) {
         console.log(response);
-      });
+        revert();
+        $scope.showNotification("ライセンス数の上限に引っかかっています");
+      };
+
+      var success = function(before_update_event, after_update_event) {
+        $scope.myCalendar.fullCalendar("removeEvents", before_update_event.event_id);
+        $scope.myCalendar.fullCalendar("renderEvent", after_update_event,  true);
+      };
+
+      current_event.update(success, error);
     });
   };
+
 
   $scope.eventResize = function(event, day, minute, revert, js, ui, view) {
     $scope.$apply(function(){
