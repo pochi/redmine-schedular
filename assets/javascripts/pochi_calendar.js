@@ -574,6 +574,24 @@ calendarApp.controller('CalendarCtrl', function($scope, $dialog, $location, Even
 
   $scope.eventResize = function(event, day, minute, revert, js, ui, view) {
     $scope.$apply(function(){
+      var current_event = new Event(event);
+      var error = function(response) {
+        console.log(response);
+        revert();
+        $scope.showNotification("ライセンス数の上限に引っかかっています");
+      };
+
+      var success = function(before_update_event, after_update_event) {
+        $scope.myCalendar.fullCalendar("removeEvents", before_update_event.event_id);
+        $scope.myCalendar.fullCalendar("renderEvent", after_update_event,  true);
+      };
+
+      current_event.update(success, error);
+    });
+  };
+
+  $scope.eventResizeaa = function(event, day, minute, revert, js, ui, view) {
+    $scope.$apply(function(){
       var currentEventId = event._id;
 
       var resource = new Event();
