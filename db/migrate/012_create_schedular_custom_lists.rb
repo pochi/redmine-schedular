@@ -4,5 +4,7 @@ class CreateSchedularCustomLists < ActiveRecord::Migration
       t.integer :scheduler_setting_id
       t.string :title, :default => "チーム名"
     end
+
+    SchedulerCustomList.create(:scheduler_setting_id => SchedulerSetting.first.id)
   end
 end
