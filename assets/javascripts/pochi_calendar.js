@@ -42,8 +42,15 @@ eventService.factory("LicenseManager", function(License) {
   };
 
   Licenses.replace = function(before_update_event, after_update_event) {
-    var current_license = Licenses.find(before_update_event);
-    current_license.replace(before_update_event, after_update_event);
+    if(before_update_event.schedule_id === after_update_event.schedule_id) {
+      var current_license = Licenses.find(before_update_event);
+      current_license.replace(before_update_event, after_update_event);
+    } else {
+      var before_license = Licenses.find(before_update_event);
+      var after_license = Licenses.find(after_update_event);
+      before_license.exclude(before_update_event);
+      after_license.events.push(after_update_event);
+    }
   };
 
   Licenses.delete = function(event) {
@@ -80,16 +87,19 @@ eventService.factory("License", function($resource) {
       var self = this;
 
       angular.forEach(events, function(e) {
-        var team_name = $("#teams").data("articles")[e.event.team_id];
-        var title = e.event.content ? team_name + "-" + e.event.username + "(" + e.event.content + ")" : team_name + "-" + e.event.username;
+        if(e.event !== undefined) {
+          e = e.event;
+        }
+        var team_name = $("#teams").data("articles")[e.team_id];
+        var title = e.content ? team_name + "-" + e.username + "(" + e.content + ")" : team_name + "-" + e.username;
         var event = {title: title,
-                     _id: e.event.id,
-                     content: e.event.content,
-                     start: e.event.start_date,
-                     end: e.event.end_date,
-                     username: e.event.username,
-                     team: e.event.team_id,
-                     schedule_id: e.event.schedule_id,
+                     _id: e.id,
+                     content: e.content,
+                     start: e.start_date,
+                     end: e.end_date,
+                     username: e.username,
+                     team: e.team_id,
+                     schedule_id: e.schedule_id,
                      backgroundColor: self.color,
                      borderColor: 'white'
                     };
@@ -115,8 +125,10 @@ eventService.factory("License", function($resource) {
     this.exclude = function(event) {
       var current_events = this.events;
       var replace_events = [];
+      var event_id = event.id ? event.id : event.event_id;
+
       for(var i=0;i<current_events.length;i++) {
-        if (current_events[i]._id !== event.id)
+        if (current_events[i]._id !== event_id)
           replace_events.push(current_events[i]);
       }
       this.events = replace_events;
@@ -177,6 +189,7 @@ eventService.factory("Event", function($resource, LicenseManager) {
       this.current.schedule_id = options.schedule_id;
       this.current.event_id = options._id;
       this.current.content = options.content;
+      this.before = angular.copy(this.current);
 
       this.deleteable = true;
     };
@@ -235,7 +248,7 @@ eventService.factory("Event", function($resource, LicenseManager) {
       var self = this;
       var current = angular.copy(this.current);
       var callback = function(e,_) {
-        LicenseManager.replace(self.current, self.to_calendar(e.event));
+        LicenseManager.replace(self.before, self.to_calendar(e.event));
         success(self.current, self.to_calendar(e.event));
       };
       current.$update(callback ,error);
@@ -317,6 +330,7 @@ calendarApp.directive('eventFormModal', function(Event) {
           submitText: '作成'
         };
 
+
         scope.formEvent = new Event({project_id: project_id,
                                      start: start,
                                      end: end,
@@ -324,6 +338,7 @@ calendarApp.directive('eventFormModal', function(Event) {
                                      username: scope.last_update_event.username,
                                      schedule_id: scope.last_update_event.schedule_id,
                                      content: scope.last_update_event.content});
+
         scope.eventForm = true;
       };
 
@@ -350,7 +365,6 @@ calendarApp.directive('eventFormModal', function(Event) {
 
         var success = function(event) {
           scope.myCalendar.fullCalendar("renderEvent", event,  true);
-          console.log(event);
           scope.last_update_event = event;
         };
 
