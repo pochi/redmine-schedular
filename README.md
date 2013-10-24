@@ -21,7 +21,7 @@ bundle exec rails s
 |予約期間 |   一回あたりに予約できる最大予約日数です|
 |グループリスト |  予約時に選択するチーム名一覧のリストをカスタマイズします|
 
-![管理者管理画面](https://www.dropbox.com/s/hbmwwbyvt0mtcu4/admin_manage.png)
+![管理者管理画面](https://dl.dropboxusercontent.com/u/1760801/redmine_scheduler/admin_manage.png)
 
 ### プロジェクトごとの設定
 
@@ -29,14 +29,14 @@ bundle exec rails s
 予約対象物を選択することができます。
 色は一度選択すると現状変更できないようになっています。
 
-![プロジェクト管理画面](https://www.dropbox.com/s/8e2q9qw58beukoy/project_manage.png)
+![プロジェクト管理画面](https://dl.dropboxusercontent.com/u/1760801/redmine_scheduler/project_manage.png)
 
 ### 画面を開く
 
 プロジェクトの"リソース予約"を選択すると別タブで画面が開きます。
 ここからは大体Google Calendarと同じような動きをします。
 
-![予約画面](https://www.dropbox.com/s/u4rbu973w71jdu2/reserve.png)
+![予約画面](https://dl.dropboxusercontent.com/u/1760801/redmine_scheduler/reserve.png)
 
 この画面では基本機能として以下をもっています。
 
