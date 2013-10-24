@@ -3,5 +3,7 @@ class CreateSchedularSettings < ActiveRecord::Migration
     create_table :scheduler_settings do |t|
       t.integer :period, :default => 14
     end
+
+    SchedulerSetting.create
   end
 end
