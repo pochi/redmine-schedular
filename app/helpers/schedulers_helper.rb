@@ -28,6 +28,7 @@ module SchedulersHelper
   end
 
   def last_event
-    User.current.events.order('updated_at desc').first.to_json
+    empty_event = { :event => { } }
+    (User.current.events.order('updated_at desc').first || empty_event).to_json
   end
 end
