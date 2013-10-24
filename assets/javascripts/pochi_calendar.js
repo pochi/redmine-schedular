@@ -301,6 +301,7 @@ calendarApp.directive('eventFormModal', function(Event) {
       var _split_url = location.href.split("/");
       var project_id = _split_url[_split_url.length - 3];
 
+      scope.last_update_event = $("#last_event").data("articles").event;
       scope.eventForm = false;
       scope.currentEvent = {
         deleteable: false
@@ -310,7 +311,6 @@ calendarApp.directive('eventFormModal', function(Event) {
         scope.eventForm = false;
       };
 
-      // New
       scope.showEventForm = function(start, end) {
         scope.currentEvent = {
           title: '新規作成',
@@ -319,7 +319,11 @@ calendarApp.directive('eventFormModal', function(Event) {
 
         scope.formEvent = new Event({project_id: project_id,
                                      start: start,
-                                     end: end});
+                                     end: end,
+                                     team: scope.last_update_event.team_id ? scope.last_update_event.team_id : scope.last_update_event.team,
+                                     username: scope.last_update_event.username,
+                                     schedule_id: scope.last_update_event.schedule_id,
+                                     content: scope.last_update_event.content});
         scope.eventForm = true;
       };
 
@@ -346,6 +350,8 @@ calendarApp.directive('eventFormModal', function(Event) {
 
         var success = function(event) {
           scope.myCalendar.fullCalendar("renderEvent", event,  true);
+          console.log(event);
+          scope.last_update_event = event;
         };
 
         scope.formEvent.create(success, error);
@@ -361,6 +367,7 @@ calendarApp.directive('eventFormModal', function(Event) {
         var success = function(before_update_event, after_update_event) {
           scope.myCalendar.fullCalendar("removeEvents", before_update_event.event_id);
           scope.myCalendar.fullCalendar("renderEvent", after_update_event,  true);
+          scope.last_update_event = after_update_event;
         };
 
         scope.formEvent.update(success, error);

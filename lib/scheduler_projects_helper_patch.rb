@@ -1,6 +1,5 @@
 require_dependency 'projects_helper'
 
-
 module SchedulerProjectsHelperPatch
   def self.included base
     base.send :include, ProjectsHelperMethodsScheduler

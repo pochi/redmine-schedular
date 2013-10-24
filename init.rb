@@ -1,6 +1,7 @@
 require 'redmine'
 require 'scheduler_projects_helper_patch'
 require 'scheduler_projects_patch'
+require 'scheduler_user_patch'
 require 'scheduler_version'
 
 Redmine::Plugin.register :schedular do
@@ -26,12 +27,18 @@ Redmine::Plugin.register :schedular do
 
   Rails.configuration.to_prepare do
     require_dependency 'projects_helper'
+    require_dependency 'user'
+
     unless ProjectsHelper.included_modules.include? SchedulerProjectsHelperPatch
       ProjectsHelper.send(:include, SchedulerProjectsHelperPatch)
     end
 
     unless Project.included_modules.include? SchedulerProjectPatch
       Project.send(:include, SchedulerProjectPatch)
+    end
+
+    unless User.included_modules.include? SchedulerUserPatch
+      User.send(:include, SchedulerUserPatch)
     end
   end
 end

@@ -26,4 +26,8 @@ module SchedulersHelper
   def max_period
     { :period => SchedulerSetting.current.period }.to_json
   end
+
+  def last_event
+    User.current.events.order('updated_at desc').first.to_json
+  end
 end
