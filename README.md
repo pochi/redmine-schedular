@@ -5,8 +5,8 @@ RedmineでGoogleCalendar風のUIを利用して、予約管理を行うプラグ
 
 ### Requirements
 
-|Ruby |  2.0 or higher |
-|Redmine | 2.3 or higher |
+|Ruby |2.0 or higher|
+|Redmine |2.3 or higher|
 
 ### Install
 
