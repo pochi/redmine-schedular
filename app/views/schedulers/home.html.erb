@@ -43,7 +43,7 @@
     <script type="text/ng-template" id="event_form.html">
       <div class="modal-header clearfix">
         <h3 style="float: left;">{{ currentEvent.title }}</h3>
-        <a ng-show='formEvent.deleteable' ng-click='deleteEvent()' style="float: right">x 削除</a>
+        <a ng-show='deleteable' ng-click='deleteEvent()' style="float: right">x 削除</a>
       </div>
       <div class="modal-body">
         <div class="alert-error calAlert">
@@ -69,8 +69,9 @@
                 <tr>
                   <th class="form_left">チーム名:</th>
                   <td>
-                    <select ng-model="formEvent.current.team_id"
-                            ng-init="formEvent.current.team_id = formEvent.current.team_id || team_id" required>
+                    <select class="license"
+                            ng-model="formEvent.current.team_id"
+                            ng-init="formEvent.current.team_id = default_team_id()" required>
                       <%= team_options %>
                     </select>
                   </td>
@@ -81,7 +82,7 @@
                   <td>
                     <select class="license"
                             ng-model="formEvent.current.schedule_id"
-                            ng-init="formEvent.current.schedule_id = formEvent.current.schedule_id || schedule_id" required>
+                            ng-init="formEvent.current.schedule_id = default_schedule_id()" required>
                       <%= license_options(@schedules) %>
                     </select>
                   </td>
@@ -114,6 +115,7 @@
         <div license_list></div>
         <div id="teams" data-articles="<%= teams %>"></div>
         <div id="period" data-articles="<%= max_period %>"></div>
+        <div id="schedules" data-articles="<%= schedules %>"></div>
         <div id="last_event" data-articles="<%= last_event %>"></div>
         <div modal="notificationMessage" notification_modal></div>
         <div modal="eventForm" event_form_modal></div>
