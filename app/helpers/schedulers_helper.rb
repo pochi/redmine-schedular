@@ -1,13 +1,3 @@
-ApplicationHelper.module_eval do
-  def current_project
-    begin
-      @project = Project.find(params[:project_id])
-    rescue ActiveRecord::RecordNotFound
-      render_404
-    end
-  end
-end
-
 module SchedulersHelper
   def team_options
     options = []
