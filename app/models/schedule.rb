@@ -23,7 +23,7 @@ class Schedule < ActiveRecord::Base
       name: title,
       license: license,
       color: color,
-      events: self.events.where("start_date > ?", date)
+      events: self.events.where("start_date >= ?", date)
                          .where("start_date < ?", date + 1.month),
       visiable: self.license_participations.find_by_user_id(User.current.id) ? false : true }
   end
