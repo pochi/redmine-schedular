@@ -3,6 +3,11 @@
 RedmineでGoogleCalendar風のUIを利用して、予約管理を行うプラグインです。
 数量が決まっている予約項目（会議室や限られたライセンスなど）を管理することができます。
 
+### Requirements
+
+|Ruby |  2.0 or higher |
+|Redmine | 2.3 or higher |
+
 ### Install
 
 ```
