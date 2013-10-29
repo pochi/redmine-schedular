@@ -190,8 +190,6 @@ eventService.factory("Event", function($resource, LicenseManager) {
       this.current.event_id = options._id;
       this.current.content = options.content;
       this.before = angular.copy(this.current);
-
-      this.deleteable = true;
     };
 
     this.setDate = function(start, end) {
@@ -316,9 +314,6 @@ calendarApp.directive('eventFormModal', function(Event) {
 
       scope.last_update_event = $("#last_event").data("articles").event;
       scope.eventForm = false;
-      scope.currentEvent = {
-        deleteable: false
-      };
 
       scope.closeEventForm = function() {
         scope.eventForm = false;
@@ -329,7 +324,7 @@ calendarApp.directive('eventFormModal', function(Event) {
           title: '新規作成',
           submitText: '作成'
         };
-
+        scope.deleteable = false;
 
         scope.formEvent = new Event({project_id: project_id,
                                      start: start,
@@ -348,10 +343,40 @@ calendarApp.directive('eventFormModal', function(Event) {
           title: '更新',
           submitText: '更新'
         };
+        scope.deleteable = true;
 
         scope.formEvent = new Event(event);
         scope.eventForm = true;
       };
+
+      scope.default_team_id = function() {
+        if(scope.formEvent.current.team_id)
+          return scope.formEvent.current.team_id;
+
+        if(scope.team_id)
+          return scope.team_id;
+
+        var team_names = $("#teams").data("articles");
+        var team_id = "";
+        for(team_id in team_names) {
+          return team_id;
+        }
+      };
+
+      scope.default_schedule_id = function() {
+        if(scope.formEvent.current.schedule_id)
+          return scope.formEvent.current.schedule_id;
+
+        if(scope.schedule_id)
+          return scope.schedule_id;
+
+        var schedule_names = $("#schedules").data("articles");
+        var schedule_id = "";
+        for(schedule_id in schedule_names) {
+          return schedule_id;
+        }
+      };
+
 
       scope.create_or_update = function() {
         scope.formEvent.current.event_id ? scope.updateEvent() : scope.createEvent();

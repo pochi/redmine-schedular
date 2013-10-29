@@ -1,3 +1,13 @@
+ApplicationHelper.module_eval do
+  def current_project
+    begin
+      @project = Project.find(params[:project_id])
+    rescue ActiveRecord::RecordNotFound
+      render_404
+    end
+  end
+end
+
 module SchedulersHelper
   def team_options
     options = []
@@ -30,5 +40,14 @@ module SchedulersHelper
   def last_event
     empty_event = { :event => { } }
     (User.current.events.order('updated_at desc').first || empty_event).to_json
+  end
+
+  def schedules
+    schedules_hash = { }
+    logger.info(params.inspect)
+    current_project.schedules.each do |s|
+      schedules_hash[s.id] = s.title
+    end
+    schedules_hash.to_json
   end
 end
