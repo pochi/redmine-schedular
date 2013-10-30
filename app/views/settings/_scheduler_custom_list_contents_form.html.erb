@@ -8,7 +8,7 @@
 <% end %>
 
 <script type="text/javascript">
-  $("#new_scheduler_custom_list_contents").live("click", function(event){
+  $(document).on("click", "#new_scheduler_custom_list_contents", function(event){
     var _target_form = $($(this).parents("form")[0]);
     var _input_text = _target_form.find("#scheduler_custom_list_content_name").val();
     var csrf_token = $("meta[name=csrf-token]").attr("content");

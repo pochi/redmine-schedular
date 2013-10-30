@@ -11,7 +11,7 @@
 <% end %>
 
 <script type="text/javascript">
-  $("#edit_scheduler_period").live("click", function(event){
+  $(document).on("click", "#edit_scheduler_period", function(event){
     var csrf_token = $("meta[name=csrf-token]").attr("content");
     var _put_period = $("#scheduler_setting_period").val();
     var put_data = "period=" + _put_period;

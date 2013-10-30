@@ -1,3 +1,4 @@
+<%= javascript_include_tag 'jquery/jquery-2.0.3.min.js', :plugin => 'schedular' %>
 <h3 style="margin-top: 10px; border-bottom: 1px solid silver">グループリスト</h3>
 
 <p style="padding-left: 0px">グループリストの追加/削除を行います</p>
@@ -25,7 +26,7 @@
 </table>
 
 <script type="text/javascript">
-  $("a.scheduler_custom_list_content_edit").live("click", function(event) {
+  $(document).on("click", "a.scheduler_custom_list_content_edit", function(event) {
     var _input_elements = $(this).parents("tr").find("td").not(".buttons");
     _input_elements.each(function() {
       var val = $(this).html();
@@ -40,7 +41,7 @@
     return false;
   });
 
-  $("a.scheduler_custom_list_content_save").live("click", function(event) {
+  $(document).on("click", "a.scheduler_custom_list_content_save", function(event) {
     var _name = $($(this).parents("tr").find("input")[0]).val();
     var csrf_token = $("meta[name=csrf-token]").attr("content");
     var put_data = "name=" + _name;

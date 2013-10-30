@@ -13,7 +13,7 @@
   </table>
 
   <script type="text/javascript">
-    $("a.schedule_edit").live("click", function(event) {
+    $(document).on("click", "a.schedule_edit", function(event) {
       var _input_elements = $(this).parents("tr").find("td").not(".buttons").not(".color-square");
       _input_elements.each(function() {
         var val = $(this).html();
@@ -27,12 +27,13 @@
       return false;
     });
 
-    $("a.schedule_save").live("click", function(event) {
+    $(document).on("click", "a.schedule_save", function(event) {
       var _resource_name = $($(this).parents("tr").find("input")[0]).val();
       var _license_number = $($(this).parents("tr").find("input")[1]).val();
       var _color = $($(this).parents("tr").find("input")[2]).val();
 
       var put_data = "title=" + _resource_name + "&license=" + _license_number + "&color=" + _color;
+
       var url = $(this).attr("href");
       var _self = this;
 

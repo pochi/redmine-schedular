@@ -1,9 +1,10 @@
 <script type="text/javascript">
-
   $(function(){
     $(":submit").not(".scheduler_custom_submit").remove();
   });
 </script>
+
+<%= javascript_include_tag 'jquery/jquery-2.0.3.min.js', :plugin => 'schedular' %>
 
 <%= render :partial => "settings/version" %>
 <%= render :partial => "settings/period" %>
