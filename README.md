@@ -54,3 +54,17 @@ bundle exec rails s
 
 * 予約期間以上設定できない
 * プロジェクト管理で設定したライセンス数以上は予約できない
+
+### [TODO]Prefixについて
+
+もしURLをNginxなどのプロキシを使って変更する場合、現状JSファイルを変更しなければいけません。
+一覧をはっておきますが、メンテナンスできるかは自信がありません。
+
+|ファイル名    |  行数|
+|--------|------|
+|pochi_calendar.js |  64|
+|pochi_calendar.js |  166|
+|pochi_calendar.js |  272|
+|pochi_calendar.js |  437|
+|pochi_calendar.js |  452|
+
