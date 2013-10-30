@@ -31,6 +31,7 @@
       var _resource_name = $($(this).parents("tr").find("input")[0]).val();
       var _license_number = $($(this).parents("tr").find("input")[1]).val();
       var _color = $($(this).parents("tr").find("input")[2]).val();
+      var csrf_token = $("meta[name=csrf-token]").attr("content");
 
       var put_data = "title=" + _resource_name + "&license=" + _license_number + "&color=" + _color;
 
@@ -39,6 +40,9 @@
 
       $.ajax({
         type: 'PUT',
+        headers: {
+          "X-CSRF-TOKEN": csrf_token
+        },
         url: url,
         data: put_data,
         dataType: 'json',
