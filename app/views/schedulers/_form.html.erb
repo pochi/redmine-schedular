@@ -15,6 +15,7 @@
 
   $(".color_picker").colpick({
     layout: "hex",
+    showEvent: 'focus',
     onChange: function(hsb, hex, rgb, fromSetColor) {
       $(".color_picker").val("#"+hex);
     },
