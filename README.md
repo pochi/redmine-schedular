@@ -67,4 +67,5 @@ bundle exec rails s
 |pochi_calendar.js |  272|
 |pochi_calendar.js |  437|
 |pochi_calendar.js |  452|
+|_period.html.erb  |  18|
 
