@@ -2,6 +2,15 @@
 
 'use strict';
 
+if(!window.console) {
+  window.console = {
+    log: function(msg) {
+      // Follow IE8 and IE9
+      // https://github.com/pochi/redmine-schedular/issues/18
+    }
+  };
+}
+
 var calendarApp = angular.module('calendarApp', ['ui.calendar',
                                                  'ui.bootstrap',
                                                  'eventService',
