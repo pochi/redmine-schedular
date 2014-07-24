@@ -1,4 +1,15 @@
 <% @schedule = Schedule.new(project_id: project.id) %>
+<!-- blue, orange, green, winered, purple, brown, pink, gray, yellow, clearblue -->
+<% color_categories = [["blue", "#1f77b4"],
+                       ["orange", "#ff7f0e"],
+                       ["green", "#2ca02c"],
+                       ["winered", "#d62728"],
+                       ["purple", "#9467bd"],
+                       ["brown", "#8c564b"],
+                       ["pink", "#e377c2"],
+                       ["gray", "#7f7f7f"],
+                       ["yellow", "#bcbd22"],
+                       ["clearblue","#17becf"]] %>
 <%= labelled_form_for :schedule, @schedule,
                       :url => {:controller => 'schedulers',
                                :action => 'create',
@@ -6,22 +17,7 @@
                      :remote => true do |form| %>
   <%= form.text_field :title %>
   <%= form.text_field :license, title: 'ライセンス数' %>
-  <%= form.text_field :color, title: 'Color', :class => "color_picker" %>
+  <%= form.select :color, color_categories %>
   <%= form.hidden_field :project_id, value: project.id %>
   <%= form.submit '作成' %>
 <% end %>
-
-<script type="text/javascript">
-
-  $(".color_picker").colpick({
-    layout: "hex",
-    showEvent: 'focus',
-    onChange: function(hsb, hex, rgb, fromSetColor) {
-      $(".color_picker").val("#"+hex);
-    },
-    onSubmit: function(col, hex, rgb, el) {
-      $(".color_picker").colpickHide();
-    }
-  });
-
-</script>

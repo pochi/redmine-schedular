@@ -30,6 +30,17 @@ calendarApp.run(function($rootScope, $location) {
 var eventService = angular.module('eventService', ['ngResource']);
 
 eventService.factory("LicenseManager", function(License) {
+  var color_categories = {"#1f77b4": "#aec7e8",
+                          "#ff7f0e": "#ffbb78",
+                          "#2ca02c": "#98df8a",
+                          "#d62728": "#ff9896",
+                          "#9467bd": "#c5b0d5",
+                          "#8c564b": "#c49c94",
+                          "#e377c2": "#f7b6d2",
+                          "#7f7f7f": "#c7c7c7",
+                          "#bcbd22": "#dbdb8d",
+                          "#17becf": "#9edae5"};
+
   var Licenses = {
     current: {},
     visible_events: []
@@ -37,6 +48,8 @@ eventService.factory("LicenseManager", function(License) {
 
   Licenses.push = function(license_json) {
     var license = new License(license_json);
+    console.log(this.current);
+    license_json.base_color = color_categories[license_json.color];
     this.current[license_json.id] = new License(license_json);
     this.current[license_json.id].push(license_json.events);
     var self = this;
@@ -87,6 +100,7 @@ eventService.factory("License", function($resource) {
       this.current.project_id = project_id;
       this.current.schedule_id = license.id;
       this.color = license.color;
+      this.base_color = license.base_color;
       this.title = license.name;
       this.events = [];
       this.visible = license.visiable ? 'active' : 'hidden-decorator';
@@ -101,7 +115,7 @@ eventService.factory("License", function($resource) {
         }
         var team_name = $("#teams").data("articles")[e.team_id];
         var title = e.content ? team_name + "-" + e.username + "(" + e.content + ")" : team_name + "-" + e.username;
-        var event = {title: title,
+        var event = {title: "<div style='width: 10px; height: 10px; margin: 6px 3px 0px 3px; display: inline-block; background-color: " + self.color + "'></div>" + title,
                      _id: e.id,
                      content: e.content,
                      start: e.start_date,
@@ -109,7 +123,7 @@ eventService.factory("License", function($resource) {
                      username: e.username,
                      team: e.team_id,
                      schedule_id: e.schedule_id,
-                     backgroundColor: self.color,
+                     backgroundColor: self.base_color,
                      borderColor: 'white'
                     };
         self.events.push(event);
@@ -224,7 +238,7 @@ eventService.factory("Event", function($resource, LicenseManager) {
       var title = event.content ? team_name + "-" + event.username + "(" + event.content + ")" : team_name + "-" + event.username;
       return {
         title: title,
-        content: event.content,
+        content: "<div class='some'></div>" + event.content,
         _id: event.id,
         start: event.start_date,
         end: event.end_date,
