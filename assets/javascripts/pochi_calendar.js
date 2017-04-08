@@ -321,7 +321,7 @@ calendarApp.directive('eventFormModal', function(Event) {
       var _split_url = location.href.split("/");
       var project_id = _split_url[_split_url.length - 3];
 
-      scope.last_update_event = $("#last_event").data("articles").event;
+      scope.last_update_event = $("#last_event").data("articles");
       scope.eventForm = false;
 
       scope.closeEventForm = function() {
