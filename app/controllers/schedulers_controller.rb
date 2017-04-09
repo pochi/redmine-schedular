@@ -23,7 +23,8 @@ class SchedulersController < ApplicationController
   end
 
   def create
-    @schedule = Schedule.new(params[:schedule])
+    permitted_params= params.require(:schedule).permit(:id, :project_id, :title,:license, :color)
+    @schedule = Schedule.new(permitted_params)
     if @schedule.save
       render :template => "schedulers/create",
              :handlers => [:erb],

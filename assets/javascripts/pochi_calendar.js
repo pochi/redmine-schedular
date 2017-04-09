@@ -243,7 +243,7 @@ eventService.factory("Event", function($resource, LicenseManager) {
     this.create = function(success, error) {
       var self = this;
       var callback = function(e, _) {
-        var event = self.to_calendar(e.event);
+        var event = self.to_calendar(e);
         self.set_id(event);
         LicenseManager.find(event).events.push(event);
         success(event);
@@ -255,8 +255,8 @@ eventService.factory("Event", function($resource, LicenseManager) {
       var self = this;
       var current = angular.copy(this.current);
       var callback = function(e,_) {
-        LicenseManager.replace(self.before, self.to_calendar(e.event));
-        success(self.current, self.to_calendar(e.event));
+        LicenseManager.replace(self.before, self.to_calendar(e));
+        success(self.current, self.to_calendar(e));
       };
       current.$update(callback ,error);
     };
@@ -264,8 +264,8 @@ eventService.factory("Event", function($resource, LicenseManager) {
     this.destroy = function(success, error) {
       var self = this;
       var callback = function(e,_) {
-        LicenseManager.delete(self.current.event);
-        success(self.current.event);
+        LicenseManager.delete(self.current);
+        success(self.current);
       };
       this.current.$delete(callback, error);
     };
@@ -321,7 +321,7 @@ calendarApp.directive('eventFormModal', function(Event) {
       var _split_url = location.href.split("/");
       var project_id = _split_url[_split_url.length - 3];
 
-      scope.last_update_event = $("#last_event").data("articles").event;
+      scope.last_update_event = $("#last_event").data("articles");
       scope.eventForm = false;
 
       scope.closeEventForm = function() {
