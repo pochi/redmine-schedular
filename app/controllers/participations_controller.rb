@@ -14,7 +14,7 @@ class ParticipationsController < ApplicationController
 
   def destroy
     participation = current_schedule.license_participations
-                                    .find_by_user_id(current_user.id)
+                                    .find_by(user_id: current_user.id)
 
     if participation && participation.destroy
       render :json => participation
